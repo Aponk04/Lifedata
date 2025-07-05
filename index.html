@@ -276,6 +276,11 @@
                     <hr>
                     <label><strong>Foto Dokumentasi (Max 1MB):</strong></label><input type="file" id="visit-photo" accept="image/*">
                     <label>Catatan Pemberian Obat Saat Kunjungan:</label><textarea id="medication-notes" rows="3"></textarea>
+                    
+                    <!-- NEW: Visiting Nurse Name Field -->
+                    <label for="visiting-nurse-name">Nama Perawat:</label>
+                    <input type="text" id="visiting-nurse-name" placeholder="Masukkan nama perawat yang berkunjung">
+
                     <button type="submit" class="btn btn-success">Simpan Kunjungan</button>
                 </form>
             </div>
@@ -354,7 +359,6 @@
         const editDrugModal = document.getElementById('edit-drug-modal');
         const editDrugTherapyForm = document.getElementById('edit-drug-therapy-form');
         const closeDrugModalBtn = document.getElementById('close-drug-modal-btn');
-        // NEW: References for toggling the add patient form
         const showAddPatientBtn = document.getElementById('show-add-patient-btn');
         const addPatientCard = document.getElementById('add-patient-card');
         const cancelAddPatientBtn = document.getElementById('cancel-add-patient-btn');
@@ -390,8 +394,6 @@
         };
 
         // --- Patient Management ---
-
-        // NEW: Logic to show/hide the add patient form
         showAddPatientBtn.addEventListener('click', () => {
             addPatientCard.style.display = 'block';
             showAddPatientBtn.style.display = 'none';
@@ -417,7 +419,6 @@
                 });
                 alert('Pasien berhasil ditambahkan!');
                 addPatientForm.reset();
-                // Hide form and show button again after successful submission
                 addPatientCard.style.display = 'none';
                 showAddPatientBtn.style.display = 'block';
                 setInitialMedicalRecordNumber();
@@ -630,7 +631,6 @@
             const therapyId = target.dataset.id;
             if (!therapyId) return;
 
-            // Handle Edit Button Click
             if (target.classList.contains('edit-therapy-btn')) {
                 if (confirm('Apakah anda yakin mengedit obat ini?')) {
                     const docRef = doc(db, "drugTherapies", therapyId);
@@ -647,7 +647,6 @@
                 }
             }
 
-            // Handle Stop Therapy Button Click
             if (target.classList.contains('stop-therapy-btn')) {
                 if (confirm('Apakah anda yakin menghentikan pemberian obat ini??')) {
                     const therapyRef = doc(db, "drugTherapies", therapyId);
@@ -657,7 +656,6 @@
                 }
             }
 
-            // Handle Delete Button Click
             if (target.classList.contains('delete-therapy-btn')) {
                 if (confirm('Apakah anda yakin menghapus obat ini dari daftar?')) {
                     try {
@@ -671,7 +669,6 @@
             }
         });
 
-        // Logic for Edit Drug Modal
         editDrugTherapyForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const therapyId = document.getElementById('edit-drug-id').value;
@@ -728,6 +725,7 @@
                 ttv: { blood_pressure: document.getElementById('blood-pressure').value, temperature: document.getElementById('temperature').value, pulse: document.getElementById('pulse').value, respiration: document.getElementById('respiration').value },
                 soap: { s: document.getElementById('soap-s').value, o: document.getElementById('soap-o').value, a: document.getElementById('soap-a').value, p: document.getElementById('soap-p').value },
                 medication_notes: document.getElementById('medication-notes').value,
+                visiting_nurse_name: document.getElementById('visiting-nurse-name').value, // SAVE NURSE NAME
                 photoURL: photoURL,
                 createdAt: serverTimestamp()
             };
@@ -776,6 +774,7 @@
                             <p><strong>TTV:</strong> TD: ${record.ttv.blood_pressure || '-'}, S: ${record.ttv.temperature || '-'}°C, N: ${record.ttv.pulse || '-'}x/m, RR: ${record.ttv.respiration || '-'}x/m</p>
                             <p><strong>S:</strong> ${record.soap.s}</p><p><strong>O:</strong> ${record.soap.o}</p><p><strong>A:</strong> ${record.soap.a}</p><p><strong>P:</strong> ${record.soap.p}</p>
                             ${record.medication_notes ? `<p><strong>Catatan Obat:</strong> ${record.medication_notes}</p>` : ''}
+                            ${record.visiting_nurse_name ? `<p><strong>Perawat:</strong> ${record.visiting_nurse_name}</p>` : ''} 
                             ${record.photoURL ? `<img src="${record.photoURL}" alt="Dokumentasi Kunjungan" class="record-photo">` : ''}
                         </div>`;
                     medicalRecordList.appendChild(li);
