@@ -1,299 +1,330 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir Persetujuan dengan Tanda Tangan Elektronik</title>
+    <title>Rekam Medis Home Care (Single File)</title>
+
     <style>
-        /* CSS tidak ada perubahan */
+        /* style.css content goes here */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
-            color: #333;
-            -webkit-text-size-adjust: 100%;
+            align-items: flex-start;
+            min-height: 100vh;
         }
-        .form-container {
-            background-color: #fff;
-            padding: 25px 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 600px;
+            max-width: 800px;
         }
-        h1 {
+
+        h1, h2 {
+            color: #333;
             text-align: center;
-            color: #444;
-            margin-bottom: 25px;
-        }
-        .form-group {
             margin-bottom: 20px;
         }
-        .form-group label {
+
+        .card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        form label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
+            color: #555;
         }
-        .form-group input, .form-group textarea {
-            width: 100%;
+
+        form input[type="text"],
+        form input[type="date"],
+        form textarea {
+            width: calc(100% - 20px);
             padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            box-sizing: border-box;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
             font-size: 16px;
         }
-        .signature-pad-container {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            position: relative;
-            height: 200px;
-        }
-        canvas#signature-pad {
+
+        form button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
             width: 100%;
-            height: 100%;
-            cursor: crosshair;
+            box-sizing: border-box;
         }
-        .buttons-container {
+
+        form button:hover {
+            background-color: #218838;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            background-color: #e9e9e9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 10px;
         }
-        button {
-            padding: 12px 20px;
+
+        ul li button {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            transition: background-color 0.3s, transform 0.1s;
+            font-size: 14px;
         }
-        button#clear-signature {
-            background-color: #f0ad4e;
-            color: white;
+
+        ul li button:hover {
+            background-color: #0056b3;
         }
-        button#save-form {
-            background-color: #337ab7;
-            color: white;
-            width: 100%;
+
+        #medical-record-list li {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 15px;
+            background-color: #e0f7fa;
+            border-left: 5px solid #00bcd4;
+        }
+
+        #medical-record-list li span {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        #back-to-patients {
+            background-color: #6c757d;
             margin-top: 20px;
         }
-        /* [PERBAIKAN CSS] Mengubah lebar template agar sesuai dengan kertas Letter (8.5 inci) */
-        #pdf-content {
-            display: none;
-            width: 215.9mm; /* Lebar kertas Letter */
-            padding: 15mm; /* Padding bisa disesuaikan */
-            box-sizing: border-box;
-            color: #000;
-            background: #fff;
-            font-size: 12px;
-        }
-        #pdf-content h2 {
-            text-align: center;
-            text-decoration: underline;
-            font-size: 16px;
-        }
-        #pdf-content p, #pdf-content li {
-            line-height: 1.5; /* Sedikit mengurangi spasi antar baris agar lebih pas */
-            text-align: justify;
-        }
-        #pdf-content .signature-image {
-             display: block;
-             width: 100px;
-             height: auto;
-             margin-bottom: 10px;
+
+        #back-to-patients:hover {
+            background-color: #5a6268;
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Rekam Medis Perawat Home Care</h1>
 
-    <div class="form-container">
-        <h1>Formulir Persetujuan</h1>
-        <form id="approval-form">
-            <div class="form-group">
-                <label for="nama">Nama Lengkap:</label>
-                <input type="text" id="nama" name="nama" required>
-            </div>
-            <div class="form-group">
-                <label for="alamat">Alamat:</label>
-                <textarea id="alamat" name="alamat" rows="3" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="noKtp">No. KTP:</label>
-                <input type="text" id="noKtp" name="noKtp" required pattern="\d{16}" title="Harap masukkan 16 digit nomor KTP">
-            </div>
-            <div class="form-group">
-                <label>Tanda Tangan Elektronik:</label>
-                <div class="signature-pad-container">
-                    <canvas id="signature-pad"></canvas>
-                </div>
-                 <div class="buttons-container">
-                    <button type="button" id="clear-signature">Hapus Tanda Tangan</button>
-                </div>
-            </div>
-            <button type="submit" id="save-form">Simpan dan Buat Surat Persetujuan</button>
-        </form>
-    </div>
+        <div class="card">
+            <h2>Tambah Pasien Baru</h2>
+            <form id="add-patient-form">
+                <label for="patient-name">Nama Pasien:</label>
+                <input type="text" id="patient-name" required>
 
-    <div id="pdf-content">
-        <h2>SURAT PERSETUJUAN</h2>
-        <br>
-        <p>Saya yang bertanda tangan di bawah ini:</p>
-        <table>
-            <tr>
-                <td style="width: 120px;"><strong>Nama</strong></td>
-                <td>: <span id="pdf-nama"></span></td>
-            </tr>
-            <tr>
-                <td style="vertical-align: top;"><strong>Alamat</strong></td>
-                <td style="vertical-align: top;">: <span id="pdf-alamat"></span></td>
-            </tr>
-            <tr>
-                <td><strong>No. KTP</strong></td>
-                <td>: <span id="pdf-noKtp"></span></td>
-            </tr>
-        </table>
-        <br>
-        <p>
-            Dengan ini menyatakan bahwa saya telah membaca, memahami, dan menyetujui sepenuhnya semua syarat dan ketentuan yang tercantum dalam Dokumen ini.
-            <ol>
-                <li>Menerima penjelasan yang jelas dan memahami sepenuhnya mengenai jenis layanan home care yang akan diterima, tujuan layanan, prosedur pelaksanaan, potensi risiko, komplikasi, serta perkiraan hasil dari layanan tersebut.</li>
-                <li>Diberikan kesempatan untuk bertanya dan semua pertanyaan saya telah dijawab oleh pihak Life Care.</li>
-                <li>Memahami bahwa layanan akan diberikan oleh tenaga kesehatan yang profesional dan kompeten dari LIfe Care</li>
-                <li>Memahami bahwa saya memiliki hak untuk menolak atau menghentikan layanan kapan saja setelah memberikan pemberitahuan yang cukup kepada Life Care.</li>
-                <li>Memahami kewajiban saya sebagai pasien/penerima layanan sebagaimana tercantum dalam [dokumen Hak dan Kewajiban Pasien.</li>
-                <li>Memberikan persetujuan penuh kepada Life Care untuk menyediakan layanan home care kesehatan kepada pasien yang disebutkan di atas sesuai dengan informasi yang telah dijelaskan.</li>
-            </ol>
-        </p>
-        <p>
-            Persetujuan ini saya berikan dalam keadaan sadar, sehat jasmani dan rohani, serta tanpa ada paksaan dari pihak manapun.
-        </p>
-        <p>
-            Demikian surat persetujuan ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
-        </p>
-        <br><br>
-        <p>Hormat saya,</p>
+                <label for="patient-dob">Tanggal Lahir:</label>
+                <input type="date" id="patient-dob" required>
 
-        <div id="signature-section">
-            <div id="pdf-signature"></div>
-            <div>
-                <strong><u><span id="pdf-nama-bawah"></span></u></strong>
-            </div>
+                <label for="patient-address">Alamat:</label>
+                <textarea id="patient-address" rows="3" required></textarea>
+
+                <button type="submit">Tambah Pasien</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Daftar Pasien</h2>
+            <ul id="patient-list">
+                <li>Memuat daftar pasien...</li>
+            </ul>
+        </div>
+
+        <div class="card" id="medical-record-section" style="display: none;">
+            <h2>Catatan Medis untuk Pasien: <span id="current-patient-name"></span></h2>
+            <form id="add-medical-record-form">
+                <label for="medical-record-note">Catatan:</label>
+                <textarea id="medical-record-note" rows="5" required></textarea>
+                <button type="submit">Tambah Catatan</button>
+            </form>
+
+            <h3>Riwayat Catatan</h3>
+            <ul id="medical-record-list">
+                </ul>
+            <button id="back-to-patients">Kembali ke Daftar Pasien</button>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script type="module">
+        // script.js content goes here
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const canvas = document.getElementById('signature-pad');
-            const signaturePad = new SignaturePad(canvas, {
-                backgroundColor: 'rgb(255, 255, 255)'
-            });
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNlEqwNBYi7uYdDy4iXd7sh1JX4PjIk5M",
+            authDomain: "lifedata-9a38d.firebaseapp.com",
+            projectId: "lifedata-9a38d",
+            storageBucket: "lifedata-9a38d.firebasestorage.app",
+            messagingSenderId: "85081493262",
+            appId: "1:85081493262:web:61201bacb087fc34cc915f"
+        };
 
-            function resizeCanvas() {
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                canvas.width = canvas.offsetWidth * ratio;
-                canvas.height = canvas.offsetHeight * ratio;
-                canvas.getContext("2d").scale(ratio, ratio);
-                signaturePad.clear();
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Get references to HTML elements
+        const addPatientForm = document.getElementById('add-patient-form');
+        const patientNameInput = document.getElementById('patient-name');
+        const patientDobInput = document.getElementById('patient-dob');
+        const patientAddressTextarea = document.getElementById('patient-address');
+        const patientList = document.getElementById('patient-list');
+
+        const medicalRecordSection = document.getElementById('medical-record-section');
+        const currentPatientNameSpan = document.getElementById('current-patient-name');
+        const addMedicalRecordForm = document.getElementById('add-medical-record-form');
+        const medicalRecordNoteTextarea = document.getElementById('medical-record-note');
+        const medicalRecordList = document.getElementById('medical-record-list');
+        const backToPatientsButton = document.getElementById('back-to-patients');
+
+        let currentPatientId = null;
+
+        // --- Fungsi untuk Pasien ---
+
+        // Tambah Pasien Baru
+        addPatientForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = patientNameInput.value;
+            const dob = patientDobInput.value;
+            const address = patientAddressTextarea.value;
+
+            try {
+                await addDoc(collection(db, "patients"), {
+                    name: name,
+                    dob: dob,
+                    address: address,
+                    createdAt: new Date()
+                });
+                alert('Pasien berhasil ditambahkan!');
+                addPatientForm.reset();
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                alert('Gagal menambahkan pasien. Silakan coba lagi.');
             }
-            window.addEventListener("resize", resizeCanvas);
-            resizeCanvas();
+        });
 
-            document.getElementById('clear-signature').addEventListener('click', function() {
-                signaturePad.clear();
-            });
-
-            document.getElementById('approval-form').addEventListener('submit', function(event) {
-                event.preventDefault();
-
-                if (signaturePad.isEmpty()) {
-                    alert("Mohon bubuhkan tanda tangan Anda terlebih dahulu.");
+        // Menampilkan daftar pasien secara real-time
+        const displayPatients = () => {
+            onSnapshot(collection(db, "patients"), (snapshot) => {
+                patientList.innerHTML = ''; // Clear existing list
+                if (snapshot.empty) {
+                    patientList.innerHTML = '<li>Belum ada pasien yang terdaftar.</li>';
                     return;
                 }
-
-                const nama = document.getElementById('nama').value;
-                const alamat = document.getElementById('alamat').value;
-                const noKtp = document.getElementById('noKtp').value;
-                const signatureDataUrl = signaturePad.toDataURL('image/png');
-
-                document.getElementById('pdf-nama').innerText = nama;
-                document.getElementById('pdf-nama-bawah').innerText = nama;
-                document.getElementById('pdf-alamat').innerText = alamat;
-                document.getElementById('pdf-noKtp').innerText = noKtp;
-                document.getElementById('pdf-signature').innerHTML = <img src="${signatureDataUrl}" class="signature-image" />;
-
-                const pdfContent = document.getElementById('pdf-content');
-                
-                pdfContent.style.display = 'block';
-                pdfContent.style.position = 'absolute';
-                pdfContent.style.top = '-9999px';
-                pdfContent.style.left = '-9999px';
-
-                setTimeout(() => {
-                    html2canvas(pdfContent, {
-                        scale: 2,
-                        useCORS: true
-                    }).then(canvasRendered => {
-                        pdfContent.style.display = 'none';
-                        pdfContent.style.position = 'static';
-                        
-                        const imgData = canvasRendered.toDataURL('image/png');
-                        const { jsPDF } = window.jspdf;
-                        
-                        // [PERBAIKAN 1]: Mengubah ukuran kertas dari 'legal' menjadi 'letter'
-                        const doc = new jsPDF('p', 'mm', 'legal');
-                        
-                        const pdfWidth = doc.internal.pageSize.getWidth();
-                        const pdfHeight = doc.internal.pageSize.getHeight();
-                        
-                        const canvasWidth = canvasRendered.width;
-                        const canvasHeight = canvasRendered.height;
-                        const canvasAspectRatio = canvasWidth / canvasHeight;
-
-                        // [PERBAIKAN 2]: Logika baru untuk scaling agar muat satu halaman
-                        // Menghapus total loop "while" yang sebelumnya ada
-                        let finalWidth, finalHeight;
-
-                        // Cek apakah konten lebih 'lebar' atau lebih 'tinggi' dari kertas
-                        if ((canvasWidth / pdfWidth) > (canvasHeight / pdfHeight)) {
-                            // Jika lebih lebar, paskan lebar
-                            finalWidth = pdfWidth;
-                            finalHeight = (pdfWidth * canvasHeight) / canvasWidth;
-                        } else {
-                            // Jika lebih tinggi, paskan tinggi
-                            finalHeight = pdfHeight;
-                            finalWidth = (pdfHeight * canvasWidth) / canvasHeight;
-                        }
-                        
-                        // Menambahkan gambar yang sudah diskalakan ke tengah halaman
-                        const xPos = (pdfWidth - finalWidth) / 2;
-                        const yPos = (pdfHeight - finalHeight) / 2;
-
-                        doc.addImage(imgData, 'PNG', xPos, yPos, finalWidth, finalHeight);
-                        // AKHIR PERBAIKAN
-                        
-                        doc.save(Surat-Persetujuan-${nama.replace(/\s/g, '_')}.pdf);
-                        
-                        alert('Surat persetujuan Anda sudah disimpan (diunduh ke folder download Anda).');
-                        
-                        document.getElementById('approval-form').reset();
-                        signaturePad.clear();
-
-                    }).catch(err => {
-                        console.error("Gagal membuat PDF:", err);
-                        pdfContent.style.display = 'none';
-                        pdfContent.style.position = 'static';
-                    });
-                }, 100);
+                snapshot.forEach((doc) => {
+                    const patient = doc.data();
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span><strong>${patient.name}</strong><br>
+                        Tgl Lahir: ${patient.dob}<br>
+                        Alamat: ${patient.address}</span>
+                        <button data-id="${doc.id}" data-name="${patient.name}">Lihat Catatan</button>
+                    `;
+                    patientList.appendChild(li);
+                });
             });
+        };
+
+        // Tangani klik pada tombol "Lihat Catatan" pasien
+        patientList.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                currentPatientId = e.target.dataset.id;
+                currentPatientNameSpan.textContent = e.target.dataset.name;
+                document.querySelector('.card:nth-child(1)').style.display = 'none'; // Sembunyikan form tambah pasien
+                document.querySelector('.card:nth-child(2)').style.display = 'none'; // Sembunyikan daftar pasien
+                medicalRecordSection.style.display = 'block'; // Tampilkan bagian catatan medis
+                displayMedicalRecords(currentPatientId);
+            }
         });
+
+        // --- Fungsi untuk Catatan Medis ---
+
+        // Tambah Catatan Medis
+        addMedicalRecordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentPatientId) {
+                alert('Pilih pasien terlebih dahulu.');
+                return;
+            }
+            const note = medicalRecordNoteTextarea.value;
+
+            try {
+                await addDoc(collection(db, "medicalRecords"), {
+                    patientId: currentPatientId,
+                    note: note,
+                    timestamp: new Date()
+                });
+                alert('Catatan medis berhasil ditambahkan!');
+                addMedicalRecordForm.reset();
+            } catch (e) {
+                console.error("Error adding medical record: ", e);
+                alert('Gagal menambahkan catatan medis. Silakan coba lagi.');
+            }
+        });
+
+        // Menampilkan catatan medis pasien tertentu secara real-time
+        const displayMedicalRecords = (patientId) => {
+            const q = query(collection(db, "medicalRecords"),
+                            where("patientId", "==", patientId),
+                            orderBy("timestamp", "desc")); // Urutkan dari yang terbaru
+
+            onSnapshot(q, (snapshot) => {
+                medicalRecordList.innerHTML = ''; // Clear existing list
+                if (snapshot.empty) {
+                    medicalRecordList.innerHTML = '<li>Belum ada catatan medis untuk pasien ini.</li>';
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const record = doc.data();
+                    const li = document.createElement('li');
+                    const date = record.timestamp.toDate(); // Mengubah Timestamp Firebase ke objek Date
+                    li.innerHTML = `
+                        <p>${record.note}</p>
+                        <span>${date.toLocaleDateString()} ${date.toLocaleTimeString()}</span>
+                    `;
+                    medicalRecordList.appendChild(li);
+                });
+            });
+        };
+
+        // Kembali ke daftar pasien
+        backToPatientsButton.addEventListener('click', () => {
+            currentPatientId = null;
+            document.querySelector('.card:nth-child(1)').style.display = 'block'; // Tampilkan form tambah pasien
+            document.querySelector('.card:nth-child(2)').style.display = 'block'; // Tampilkan daftar pasien
+            medicalRecordSection.style.display = 'none'; // Sembunyikan bagian catatan medis
+        });
+
+        // Panggil fungsi untuk menampilkan pasien saat halaman dimuat
+        displayPatients();
     </script>
 </body>
 </html>
