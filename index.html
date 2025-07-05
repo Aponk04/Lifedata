@@ -194,10 +194,8 @@
         <div id="patient-management-section">
             <h1>Rekam Medis Perawat Home Care</h1>
 
-            <!-- NEW: Button to show the add patient form -->
             <button id="show-add-patient-btn" class="btn btn-primary" style="margin-bottom: 20px;">Tambah Pasien Baru</button>
 
-            <!-- MODIFIED: Add patient card is now hidden by default -->
             <div id="add-patient-card" class="card" style="display: none;">
                 <h2>Tambah Pasien Baru</h2>
                 <form id="add-patient-form">
@@ -205,8 +203,24 @@
                     <input type="text" id="patient-rm" readonly>
                     <label for="patient-name">Nama Pasien:</label><input type="text" id="patient-name" required>
                     <label for="patient-dob">Tanggal Lahir:</label><input type="date" id="patient-dob" required>
+                    
+                    <!-- NEW: Gender Field -->
+                    <label for="patient-gender">Jenis Kelamin:</label>
+                    <select id="patient-gender" required>
+                        <option value="">Pilih Jenis Kelamin</option>
+                        <option value="Laki-laki">Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
+
                     <label for="patient-address">Alamat:</label><textarea id="patient-address" rows="3" required></textarea>
                     <label for="patient-allergies">Riwayat Alergi:</label><textarea id="patient-allergies" rows="3" placeholder="Contoh: Paracetamol, Udang, Debu"></textarea>
+                    
+                    <!-- NEW: Initial Assessment Fields -->
+                    <label for="patient-initial-assessment">Asesmen Awal:</label>
+                    <textarea id="patient-initial-assessment" rows="4" placeholder="Masukkan hasil asesmen awal"></textarea>
+                    <label for="patient-assessing-nurse">Nama Perawat (Asesmen):</label>
+                    <input type="text" id="patient-assessing-nurse" placeholder="Nama perawat yang melakukan asesmen">
+
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button type="submit" class="btn btn-success" style="margin-top: 0;">Simpan Pasien</button>
                         <button type="button" id="cancel-add-patient-btn" class="btn btn-secondary" style="margin-top: 0;">Batal</button>
@@ -277,7 +291,6 @@
                     <label><strong>Foto Dokumentasi (Max 1MB):</strong></label><input type="file" id="visit-photo" accept="image/*">
                     <label>Catatan Pemberian Obat Saat Kunjungan:</label><textarea id="medication-notes" rows="3"></textarea>
                     
-                    <!-- NEW: Visiting Nurse Name Field -->
                     <label for="visiting-nurse-name">Nama Perawat:</label>
                     <input type="text" id="visiting-nurse-name" placeholder="Masukkan nama perawat yang berkunjung">
 
@@ -301,8 +314,24 @@
                 <label for="edit-patient-rm">No. Rekam Medik:</label><input type="text" id="edit-patient-rm" readonly>
                 <label for="edit-patient-name">Nama Pasien:</label><input type="text" id="edit-patient-name" required>
                 <label for="edit-patient-dob">Tanggal Lahir:</label><input type="date" id="edit-patient-dob" required>
+                
+                <!-- NEW: Edit Gender Field -->
+                <label for="edit-patient-gender">Jenis Kelamin:</label>
+                <select id="edit-patient-gender" required>
+                    <option value="">Pilih Jenis Kelamin</option>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                </select>
+
                 <label for="edit-patient-address">Alamat:</label><textarea id="edit-patient-address" rows="3" required></textarea>
                 <label for="edit-patient-allergies">Riwayat Alergi:</label><textarea id="edit-patient-allergies" rows="3"></textarea>
+                
+                <!-- NEW: Edit Initial Assessment Fields -->
+                <label for="edit-patient-initial-assessment">Asesmen Awal:</label>
+                <textarea id="edit-patient-initial-assessment" rows="4"></textarea>
+                <label for="edit-patient-assessing-nurse">Nama Perawat (Asesmen):</label>
+                <input type="text" id="edit-patient-assessing-nurse">
+
                 <button type="submit" class="btn btn-success">Simpan Perubahan</button>
             </form>
         </div>
@@ -413,8 +442,11 @@
                     rm_number: document.getElementById('patient-rm').value,
                     name: document.getElementById('patient-name').value,
                     dob: document.getElementById('patient-dob').value,
+                    gender: document.getElementById('patient-gender').value,
                     address: document.getElementById('patient-address').value,
                     allergies: document.getElementById('patient-allergies').value,
+                    initial_assessment: document.getElementById('patient-initial-assessment').value,
+                    assessing_nurse: document.getElementById('patient-assessing-nurse').value,
                     createdAt: serverTimestamp()
                 });
                 alert('Pasien berhasil ditambahkan!');
@@ -533,8 +565,12 @@
                         <p><strong>No. Rekam Medik:</strong> ${patient.rm_number || 'N/A'}</p>
                         <p><strong>Nama:</strong> ${patient.name}</p>
                         <p><strong>Tgl Lahir:</strong> ${patient.dob}</p>
+                        <p><strong>Jenis Kelamin:</strong> ${patient.gender || 'N/A'}</p>
                         <p><strong>Alamat:</strong> ${patient.address}</p>
                         <p><strong>Alergi:</strong> ${patient.allergies || 'Tidak ada data'}</p> 
+                        <hr>
+                        <p><strong>Asesmen Awal:</strong><br>${patient.initial_assessment || 'Tidak ada data'}</p>
+                        <p><strong>Diasesmen oleh:</strong> ${patient.assessing_nurse || 'Tidak ada data'}</p>
                     `;
                 } else {
                     console.log("No such document!");
@@ -552,9 +588,34 @@
                 document.getElementById('edit-patient-rm').value = patient.rm_number || '';
                 document.getElementById('edit-patient-name').value = patient.name;
                 document.getElementById('edit-patient-dob').value = patient.dob;
+                document.getElementById('edit-patient-gender').value = patient.gender || '';
                 document.getElementById('edit-patient-address').value = patient.address;
                 document.getElementById('edit-patient-allergies').value = patient.allergies || ''; 
+                document.getElementById('edit-patient-initial-assessment').value = patient.initial_assessment || '';
+                document.getElementById('edit-patient-assessing-nurse').value = patient.assessing_nurse || '';
                 editPatientModal.style.display = 'block';
+            }
+        });
+
+        editPatientForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const patientRef = doc(db, "patients", currentPatientId);
+            try {
+                await updateDoc(patientRef, {
+                    name: document.getElementById('edit-patient-name').value,
+                    dob: document.getElementById('edit-patient-dob').value,
+                    gender: document.getElementById('edit-patient-gender').value,
+                    address: document.getElementById('edit-patient-address').value,
+                    allergies: document.getElementById('edit-patient-allergies').value,
+                    initial_assessment: document.getElementById('edit-patient-initial-assessment').value,
+                    assessing_nurse: document.getElementById('edit-patient-assessing-nurse').value
+                });
+                alert('Data pasien berhasil diperbarui!');
+                editPatientModal.style.display = 'none';
+                await displayPatientDetails(currentPatientId);
+            } catch (error) {
+                console.error("Error updating patient data: ", error);
+                alert('Gagal memperbarui data pasien.');
             }
         });
 
@@ -725,7 +786,7 @@
                 ttv: { blood_pressure: document.getElementById('blood-pressure').value, temperature: document.getElementById('temperature').value, pulse: document.getElementById('pulse').value, respiration: document.getElementById('respiration').value },
                 soap: { s: document.getElementById('soap-s').value, o: document.getElementById('soap-o').value, a: document.getElementById('soap-a').value, p: document.getElementById('soap-p').value },
                 medication_notes: document.getElementById('medication-notes').value,
-                visiting_nurse_name: document.getElementById('visiting-nurse-name').value, // SAVE NURSE NAME
+                visiting_nurse_name: document.getElementById('visiting-nurse-name').value,
                 photoURL: photoURL,
                 createdAt: serverTimestamp()
             };
