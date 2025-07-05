@@ -93,6 +93,8 @@
         .btn-success { background-color: #28a745; margin-top: 10px; } .btn-success:hover { background-color: #218838; }
         .btn-secondary { background-color: #6c757d; } .btn-secondary:hover { background-color: #5a6268; }
         .btn-danger { background-color: #dc3545; } .btn-danger:hover { background-color: #c82333; }
+        .btn-warning { background-color: #ffc107; color: #212529; } .btn-warning:hover { background-color: #e0a800; }
+
 
         /* Lists Styling */
         ul { 
@@ -108,24 +110,36 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            transition: background-color 0.2s; 
+            transition: background-color 0.3s, border-left 0.3s; 
         }
-        #patient-list li:hover, #drug-therapy-list li:hover { 
+        #patient-list li:hover, #drug-therapy-list li:not(.therapy-stopped):hover { 
             background-color: #e9ecef; 
         }
         .list-item-info { 
             flex-grow: 1; 
+            transition: opacity 0.3s, text-decoration 0.3s;
+        }
+        .list-item-actions {
+            display: flex;
+            gap: 5px;
+            flex-shrink: 0;
         }
         .list-item-actions button { 
-            margin-left: 8px; 
-            padding: 6px 12px; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-size: 14px; 
+            margin-left: 0;
         }
 
-        /* NEW: Header for list with search bar */
+        /* Style for stopped therapy */
+        #drug-therapy-list li.therapy-stopped {
+            background-color: #e6e0f8; /* Light purple */
+            border-left: 5px solid #6f42c1; /* Darker purple */
+        }
+        #drug-therapy-list li.therapy-stopped .list-item-info {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+
+        /* Header for list with search bar */
         .list-header { 
             display: flex; 
             justify-content: space-between; 
@@ -228,7 +242,7 @@
             <button id="back-to-patients-from-detail" class="btn btn-secondary" style="margin-top: 10px;">Kembali ke Daftar Pasien</button>
         </div>
 
-        <!-- SECTION 3: Visit History (Tidak ada perubahan) -->
+        <!-- SECTION 3: Visit History -->
         <div id="visit-history-section" style="display: none;">
             <h2>Riwayat Kunjungan: <span id="visit-patient-name"></span></h2>
             <div class="card">
@@ -264,7 +278,7 @@
         </div>
     </div>
 
-    <!-- Edit Patient Modal (Tidak ada perubahan) -->
+    <!-- Edit Patient Modal -->
     <div id="edit-patient-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="close-modal-btn">&times;</span>
@@ -275,6 +289,22 @@
                 <label for="edit-patient-dob">Tanggal Lahir:</label><input type="date" id="edit-patient-dob" required>
                 <label for="edit-patient-address">Alamat:</label><textarea id="edit-patient-address" rows="3" required></textarea>
                 <label for="edit-patient-allergies">Riwayat Alergi:</label><textarea id="edit-patient-allergies" rows="3"></textarea>
+                <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Drug Therapy Modal -->
+    <div id="edit-drug-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-drug-modal-btn">&times;</span>
+            <h2>Edit Terapi Obat</h2>
+            <form id="edit-drug-therapy-form">
+                <input type="hidden" id="edit-drug-id">
+                <label for="edit-drug-name">Nama Obat:</label><input type="text" id="edit-drug-name" required>
+                <label for="edit-drug-dosage">Dosis:</label><input type="text" id="edit-drug-dosage">
+                <label for="edit-drug-frequency">Frekuensi:</label><input type="text" id="edit-drug-frequency">
+                <label for="edit-drug-route">Rute Pemberian:</label><input type="text" id="edit-drug-route">
                 <button type="submit" class="btn btn-success">Simpan Perubahan</button>
             </form>
         </div>
@@ -312,6 +342,9 @@
         const editPatientModal = document.getElementById('edit-patient-modal');
         const editPatientForm = document.getElementById('edit-patient-form');
         const searchPatientInput = document.getElementById('search-patient');
+        const editDrugModal = document.getElementById('edit-drug-modal');
+        const editDrugTherapyForm = document.getElementById('edit-drug-therapy-form');
+        const closeDrugModalBtn = document.getElementById('close-drug-modal-btn');
 
         let currentPatientId = null;
         let currentPatientName = '';
@@ -399,11 +432,9 @@
         searchPatientInput.addEventListener('input', renderPatientList);
 
         const listenForPatients = () => {
-            // FIX: Removed orderBy from the query to prevent index errors.
             const q = query(collection(db, "patients"));
             onSnapshot(q, (snapshot) => {
                 let docs = snapshot.docs;
-                // Sorting is now done on the client-side.
                 docs.sort((a, b) => {
                     const nameA = a.data().name.toLowerCase();
                     const nameB = b.data().name.toLowerCase();
@@ -497,31 +528,7 @@
         });
 
         document.getElementById('close-modal-btn').addEventListener('click', () => editPatientModal.style.display = 'none');
-        window.addEventListener('click', (e) => {
-            if (e.target == editPatientModal) {
-                editPatientModal.style.display = 'none';
-            }
-        });
-
-        editPatientForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const patientRef = doc(db, "patients", currentPatientId);
-            try {
-                await updateDoc(patientRef, {
-                    name: document.getElementById('edit-patient-name').value,
-                    dob: document.getElementById('edit-patient-dob').value,
-                    address: document.getElementById('edit-patient-address').value,
-                    allergies: document.getElementById('edit-patient-allergies').value
-                });
-                alert('Data pasien berhasil diperbarui!');
-                editPatientModal.style.display = 'none';
-                await displayPatientDetails(currentPatientId);
-            } catch (error) {
-                console.error("Error updating patient data: ", error);
-                alert('Gagal memperbarui data pasien.');
-            }
-        });
-
+        
         // --- Drug Therapy ---
         addDrugTherapyForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -533,6 +540,7 @@
                     dosage: document.getElementById('drug-dosage').value,
                     frequency: document.getElementById('drug-frequency').value,
                     route: document.getElementById('drug-route').value,
+                    status: 'active',
                     createdAt: serverTimestamp()
                 });
                 addDrugTherapyForm.reset();
@@ -542,7 +550,6 @@
         });
 
         const displayDrugTherapies = (patientId) => {
-            // FIX: Removed orderBy from the query to prevent index errors.
             const q = query(collection(db, "drugTherapies"), where("patientId", "==", patientId));
             onSnapshot(q, (snapshot) => {
                 drugTherapyList.innerHTML = '';
@@ -551,19 +558,36 @@
                     return; 
                 }
                 
-                // Sorting is now done on the client-side.
                 const therapies = snapshot.docs.sort((a, b) => {
+                    const statusA = a.data().status === 'stopped' ? 1 : 0;
+                    const statusB = b.data().status === 'stopped' ? 1 : 0;
+                    if (statusA !== statusB) {
+                        return statusA - statusB;
+                    }
                     const timeA = a.data().createdAt?.toDate() || 0;
                     const timeB = b.data().createdAt?.toDate() || 0;
-                    return timeB - timeA; // Descending order
+                    return timeB - timeA;
                 });
 
                 therapies.forEach((doc) => {
                     const therapy = doc.data();
                     const li = document.createElement('li');
+                    
+                    if (therapy.status === 'stopped') {
+                        li.classList.add('therapy-stopped');
+                    }
+
                     li.innerHTML = `
-                        <div class="list-item-info"><strong>${therapy.name}</strong> (${therapy.dosage || 'N/A'})<br><small>${therapy.frequency || 'N/A'}, via ${therapy.route || 'N/A'}</small></div>
-                        <button class="btn btn-danger delete-therapy-btn" data-id="${doc.id}" style="padding: 4px 8px;">Hapus</button>`;
+                        <div class="list-item-info">
+                            <strong>${therapy.name}</strong> (${therapy.dosage || 'N/A'})
+                            <br>
+                            <small>${therapy.frequency || 'N/A'}, via ${therapy.route || 'N/A'}</small>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="btn btn-primary edit-therapy-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;" ${therapy.status === 'stopped' ? 'disabled' : ''}>Edit</button>
+                            <button class="btn btn-warning stop-therapy-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;" ${therapy.status === 'stopped' ? 'disabled' : ''}>Hentikan</button>
+                            <button class="btn btn-danger delete-therapy-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;">Hapus</button>
+                        </div>`;
                     drugTherapyList.appendChild(li);
                 });
             }, (error) => {
@@ -572,12 +596,83 @@
         };
 
         drugTherapyList.addEventListener('click', async (e) => {
-            if (e.target.classList.contains('delete-therapy-btn')) {
-                if (confirm('Yakin ingin menghapus terapi ini?')) {
-                    await deleteDoc(doc(db, "drugTherapies", e.target.dataset.id));
+            const target = e.target;
+            const therapyId = target.dataset.id;
+            if (!therapyId) return;
+
+            // Handle Edit Button Click
+            if (target.classList.contains('edit-therapy-btn')) {
+                if (confirm('Apakah anda yakin mengedit obat ini?')) {
+                    const docRef = doc(db, "drugTherapies", therapyId);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const therapy = docSnap.data();
+                        document.getElementById('edit-drug-id').value = therapyId;
+                        document.getElementById('edit-drug-name').value = therapy.name;
+                        document.getElementById('edit-drug-dosage').value = therapy.dosage || '';
+                        document.getElementById('edit-drug-frequency').value = therapy.frequency || '';
+                        document.getElementById('edit-drug-route').value = therapy.route || '';
+                        editDrugModal.style.display = 'block';
+                    }
+                }
+            }
+
+            // Handle Stop Therapy Button Click
+            if (target.classList.contains('stop-therapy-btn')) {
+                if (confirm('Apakah anda yakin menghentikan pemberian obat ini??')) {
+                    const therapyRef = doc(db, "drugTherapies", therapyId);
+                    await updateDoc(therapyRef, {
+                        status: 'stopped'
+                    });
+                }
+            }
+
+            // NEW: Handle Delete Button Click
+            if (target.classList.contains('delete-therapy-btn')) {
+                if (confirm('Apakah anda yakin menghapus obat ini dari daftar?')) {
+                    try {
+                        await deleteDoc(doc(db, "drugTherapies", therapyId));
+                        alert('Obat berhasil dihapus.');
+                    } catch (error) {
+                        console.error("Error deleting drug therapy: ", error);
+                        alert('Gagal menghapus obat.');
+                    }
                 }
             }
         });
+
+        // Logic for Edit Drug Modal
+        editDrugTherapyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const therapyId = document.getElementById('edit-drug-id').value;
+            const therapyRef = doc(db, "drugTherapies", therapyId);
+            
+            try {
+                await updateDoc(therapyRef, {
+                    name: document.getElementById('edit-drug-name').value,
+                    dosage: document.getElementById('edit-drug-dosage').value,
+                    frequency: document.getElementById('edit-drug-frequency').value,
+                    route: document.getElementById('edit-drug-route').value
+                });
+                alert('Terapi obat berhasil diperbarui!');
+                editDrugModal.style.display = 'none';
+            } catch (error) {
+                console.error("Error updating drug therapy: ", error);
+                alert('Gagal memperbarui terapi obat.');
+            }
+        });
+
+        closeDrugModalBtn.addEventListener('click', () => {
+            editDrugModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target == editPatientModal || e.target == editDrugModal) {
+                editPatientModal.style.display = 'none';
+                editDrugModal.style.display = 'none';
+            }
+        });
+
 
         // --- Medical Records (Visits) with Photo Upload ---
         addMedicalRecordForm.addEventListener('submit', async (e) => {
@@ -627,7 +722,6 @@
         });
 
         const displayMedicalRecords = (patientId) => {
-            // FIX: Removed orderBy from the query to prevent index errors.
             const q = query(collection(db, "medicalRecords"), where("patientId", "==", patientId));
             onSnapshot(q, (snapshot) => {
                 medicalRecordList.innerHTML = '';
@@ -636,11 +730,10 @@
                     return; 
                 }
 
-                // Sorting is now done on the client-side.
                 const records = snapshot.docs.sort((a, b) => {
                     const timeA = a.data().timestamp.toDate();
                     const timeB = b.data().timestamp.toDate();
-                    return timeB - timeA; // Descending order
+                    return timeB - timeA;
                 });
 
                 records.forEach((doc) => {
