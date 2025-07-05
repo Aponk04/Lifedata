@@ -5,36 +5,171 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekam Medis Home Care (Fitur Lengkap)</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
-        .container { background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); width: 100%; max-width: 800px; }
-        h1, h2, h3, h4 { color: #333; text-align: center; margin-bottom: 25px; }
-        .card { background-color: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-        form label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
-        form input, form textarea, form select { width: calc(100% - 24px); padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; transition: border-color 0.3s; }
-        form input[type="file"] { padding: 5px; }
-        form input:focus, form textarea:focus { border-color: #007bff; outline: none; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .btn { color: white; padding: 12px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; box-sizing: border-box; transition: background-color 0.3s; text-align: center; display: inline-block; text-decoration: none; }
+        /* General Body and Container Styling */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f4f7f6; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+            min-height: 100vh; 
+        }
+        .container { 
+            background-color: #ffffff; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+            width: 100%; 
+            max-width: 800px; 
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 { 
+            color: #333; 
+            text-align: center; 
+            margin-bottom: 25px; 
+        }
+
+        /* Card Styling */
+        .card { 
+            background-color: #fdfdfd; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+        }
+
+        /* Form Elements */
+        form label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #555; 
+        }
+        form input, form textarea, form select { 
+            width: calc(100% - 24px); 
+            padding: 12px; 
+            margin-bottom: 15px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            font-size: 16px; 
+            transition: border-color 0.3s; 
+        }
+        form input[readonly] { 
+            background-color: #e9ecef; 
+            cursor: not-allowed; 
+        }
+        form input[type="file"] { 
+            padding: 5px; 
+        }
+        form input:focus, form textarea:focus { 
+            border-color: #007bff; 
+            outline: none; 
+        }
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 20px; 
+        }
+
+        /* Buttons */
+        .btn { 
+            color: white; 
+            padding: 12px 15px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            transition: background-color 0.3s; 
+            text-align: center; 
+            display: inline-block; 
+            text-decoration: none; 
+        }
         .btn-primary { background-color: #007bff; } .btn-primary:hover { background-color: #0056b3; }
         .btn-success { background-color: #28a745; margin-top: 10px; } .btn-success:hover { background-color: #218838; }
         .btn-secondary { background-color: #6c757d; } .btn-secondary:hover { background-color: #5a6268; }
         .btn-danger { background-color: #dc3545; } .btn-danger:hover { background-color: #c82333; }
-        ul { list-style: none; padding: 0; }
-        #patient-list li, #drug-therapy-list li { background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; margin-bottom: 8px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.2s; }
-        #patient-list li:hover, #drug-therapy-list li:hover { background-color: #e9ecef; }
-        .list-item-info { flex-grow: 1; }
-        .list-item-actions button { margin-left: 8px; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        #medical-record-list li { display: flex; flex-direction: column; align-items: flex-start; padding: 15px; background-color: #e0f7fa; border-left: 5px solid #00bcd4; margin-bottom: 15px; border-radius: 4px; }
+
+        /* Lists Styling */
+        ul { 
+            list-style: none; 
+            padding: 0; 
+        }
+        #patient-list li, #drug-therapy-list li { 
+            background-color: #f8f9fa; 
+            border: 1px solid #dee2e6; 
+            padding: 15px; 
+            margin-bottom: 8px; 
+            border-radius: 5px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: background-color 0.2s; 
+        }
+        #patient-list li:hover, #drug-therapy-list li:hover { 
+            background-color: #e9ecef; 
+        }
+        .list-item-info { 
+            flex-grow: 1; 
+        }
+        .list-item-actions button { 
+            margin-left: 8px; 
+            padding: 6px 12px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 14px; 
+        }
+
+        /* NEW: Header for list with search bar */
+        .list-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .list-header h2 { 
+            margin: 0; 
+        }
+        #search-patient { 
+            padding: 8px 12px; 
+            font-size: 15px; 
+            width: 100%;
+            max-width: 280px;
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+        }
+
+        /* Medical Record List */
+        #medical-record-list li { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-start; 
+            padding: 15px; 
+            background-color: #e0f7fa; 
+            border-left: 5px solid #00bcd4; 
+            margin-bottom: 15px; 
+            border-radius: 4px; 
+        }
         .record-header { font-weight: bold; margin-bottom: 10px; font-size: 1.1em; }
         .record-body p { margin: 5px 0; }
         .record-body strong { color: #00796b; }
         .record-photo { max-width: 100%; border-radius: 5px; margin-top: 10px; }
         hr { border: 0; height: 1px; background-color: #e0e0e0; margin: 30px 0; }
         
+        /* Modal Styling */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
         .modal-content { background-color: #fefefe; margin: 10% auto; padding: 25px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 10px; position: relative; }
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; top: 10px; right: 20px; }
         .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
+        
+        /* Patient Info Display */
         .patient-info-display { padding: 15px; background-color: #e9ecef; border-radius: 5px; }
         .patient-info-display p { margin: 8px 0; }
     </style>
@@ -47,16 +182,20 @@
             <div class="card">
                 <h2>Tambah Pasien Baru</h2>
                 <form id="add-patient-form">
+                    <label for="patient-rm">No. Rekam Medik:</label>
+                    <input type="text" id="patient-rm" readonly>
                     <label for="patient-name">Nama Pasien:</label><input type="text" id="patient-name" required>
                     <label for="patient-dob">Tanggal Lahir:</label><input type="date" id="patient-dob" required>
                     <label for="patient-address">Alamat:</label><textarea id="patient-address" rows="3" required></textarea>
-                    <!-- INPUT BARU: RIWAYAT ALERGI -->
                     <label for="patient-allergies">Riwayat Alergi:</label><textarea id="patient-allergies" rows="3" placeholder="Contoh: Paracetamol, Udang, Debu"></textarea>
                     <button type="submit" class="btn btn-success">Tambah Pasien</button>
                 </form>
             </div>
             <div class="card">
-                <h2>Daftar Pasien</h2>
+                <div class="list-header">
+                    <h2>Daftar Pasien</h2>
+                    <input type="text" id="search-patient" placeholder="Cari nama atau No. RM...">
+                </div>
                 <ul id="patient-list"><li>Memuat daftar pasien...</li></ul>
             </div>
         </div>
@@ -89,7 +228,7 @@
             <button id="back-to-patients-from-detail" class="btn btn-secondary" style="margin-top: 10px;">Kembali ke Daftar Pasien</button>
         </div>
 
-        <!-- SECTION 3: Visit History -->
+        <!-- SECTION 3: Visit History (Tidak ada perubahan) -->
         <div id="visit-history-section" style="display: none;">
             <h2>Riwayat Kunjungan: <span id="visit-patient-name"></span></h2>
             <div class="card">
@@ -125,16 +264,16 @@
         </div>
     </div>
 
-    <!-- Edit Patient Modal -->
+    <!-- Edit Patient Modal (Tidak ada perubahan) -->
     <div id="edit-patient-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="close-modal-btn">&times;</span>
             <h2>Edit Data Pasien</h2>
             <form id="edit-patient-form">
+                <label for="edit-patient-rm">No. Rekam Medik:</label><input type="text" id="edit-patient-rm" readonly>
                 <label for="edit-patient-name">Nama Pasien:</label><input type="text" id="edit-patient-name" required>
                 <label for="edit-patient-dob">Tanggal Lahir:</label><input type="date" id="edit-patient-dob" required>
                 <label for="edit-patient-address">Alamat:</label><textarea id="edit-patient-address" rows="3" required></textarea>
-                <!-- INPUT BARU: EDIT RIWAYAT ALERGI -->
                 <label for="edit-patient-allergies">Riwayat Alergi:</label><textarea id="edit-patient-allergies" rows="3"></textarea>
                 <button type="submit" class="btn btn-success">Simpan Perubahan</button>
             </form>
@@ -172,9 +311,11 @@
         const medicalRecordList = document.getElementById('medical-record-list');
         const editPatientModal = document.getElementById('edit-patient-modal');
         const editPatientForm = document.getElementById('edit-patient-form');
+        const searchPatientInput = document.getElementById('search-patient');
 
         let currentPatientId = null;
         let currentPatientName = '';
+        let allPatients = [];
 
         // --- Navigation Logic ---
         const showSection = (sectionName) => {
@@ -188,42 +329,92 @@
             showSection('visits');
         });
         document.getElementById('back-to-detail-btn').addEventListener('click', () => showSection('detail'));
-        
+
+        // --- Generate Medical Record Number ---
+        const generateMedicalRecordNumber = () => {
+            const now = new Date();
+            const year = now.getFullYear().toString().slice(-2);
+            const month = ('0' + (now.getMonth() + 1)).slice(-2);
+            const suffix = Date.now().toString().slice(-6);
+            return `${year}${month}-${suffix}`;
+        };
+
+        const setInitialMedicalRecordNumber = () => {
+            document.getElementById('patient-rm').value = generateMedicalRecordNumber();
+        };
+
         // --- Patient Management ---
         addPatientForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
                 await addDoc(collection(db, "patients"), {
+                    rm_number: document.getElementById('patient-rm').value,
                     name: document.getElementById('patient-name').value,
                     dob: document.getElementById('patient-dob').value,
                     address: document.getElementById('patient-address').value,
-                    allergies: document.getElementById('patient-allergies').value, // Simpan data alergi
+                    allergies: document.getElementById('patient-allergies').value,
                     createdAt: serverTimestamp()
                 });
                 alert('Pasien berhasil ditambahkan!');
                 addPatientForm.reset();
+                setInitialMedicalRecordNumber();
             } catch (error) {
                 console.error("Error adding patient: ", error);
                 alert('Gagal menambahkan pasien.');
             }
         });
+        
+        // --- Search and Display Patient List ---
+        const renderPatientList = () => {
+            patientList.innerHTML = '';
+            const searchTerm = searchPatientInput.value.toLowerCase();
+            const filteredPatients = allPatients.filter(patientDoc => {
+                const patient = patientDoc.data();
+                const nameMatch = patient.name && patient.name.toLowerCase().includes(searchTerm);
+                const rmMatch = patient.rm_number && patient.rm_number.toLowerCase().includes(searchTerm);
+                return nameMatch || rmMatch;
+            });
 
-        const displayPatients = () => {
-            const q = query(collection(db, "patients"), orderBy("name"));
+            if (filteredPatients.length === 0) {
+                patientList.innerHTML = '<li>Tidak ada pasien yang cocok atau belum ada data.</li>';
+                return;
+            }
+
+            filteredPatients.forEach((doc) => {
+                const patient = doc.data();
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="list-item-info">
+                        <strong>${patient.name}</strong><br>
+                        <small>No. RM: ${patient.rm_number || 'N/A'} | Lahir: ${patient.dob}</small>
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn btn-primary" data-id="${doc.id}" data-name="${patient.name}" style="padding: 6px 12px;">Detail</button>
+                        <button class="btn btn-danger" data-id="${doc.id}" data-name="${patient.name}" style="padding: 6px 12px;">Hapus</button>
+                    </div>`;
+                patientList.appendChild(li);
+            });
+        };
+        
+        searchPatientInput.addEventListener('input', renderPatientList);
+
+        const listenForPatients = () => {
+            // FIX: Removed orderBy from the query to prevent index errors.
+            const q = query(collection(db, "patients"));
             onSnapshot(q, (snapshot) => {
-                patientList.innerHTML = '';
-                if (snapshot.empty) { patientList.innerHTML = '<li>Belum ada pasien.</li>'; return; }
-                snapshot.forEach((doc) => {
-                    const patient = doc.data();
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <div class="list-item-info"><strong>${patient.name}</strong><br><small>Lahir: ${patient.dob}</small></div>
-                        <div class="list-item-actions">
-                            <button class="btn btn-primary" data-id="${doc.id}" data-name="${patient.name}" style="padding: 6px 12px;">Detail</button>
-                            <button class="btn btn-danger" data-id="${doc.id}" data-name="${patient.name}" style="padding: 6px 12px;">Hapus</button>
-                        </div>`;
-                    patientList.appendChild(li);
+                let docs = snapshot.docs;
+                // Sorting is now done on the client-side.
+                docs.sort((a, b) => {
+                    const nameA = a.data().name.toLowerCase();
+                    const nameB = b.data().name.toLowerCase();
+                    if (nameA < nameB) return -1;
+                    if (nameA > nameB) return 1;
+                    return 0;
                 });
+                allPatients = docs;
+                renderPatientList();
+            }, (error) => {
+                console.error("Error listening for patient documents: ", error);
             });
         };
 
@@ -249,7 +440,7 @@
                 }
             }
         });
-        
+
         const deletePatientAndRecords = async (patientId) => {
             if (!patientId) return;
             try {
@@ -271,19 +462,23 @@
 
         // --- Patient Detail & Edit ---
         const displayPatientDetails = async (patientId) => {
-            const docRef = doc(db, "patients", patientId);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const patient = docSnap.data();
-                // Tampilkan data alergi
-                patientInfoDisplay.innerHTML = `
-                    <p><strong>Nama:</strong> ${patient.name}</p>
-                    <p><strong>Tgl Lahir:</strong> ${patient.dob}</p>
-                    <p><strong>Alamat:</strong> ${patient.address}</p>
-                    <p><strong>Alergi:</strong> ${patient.allergies || 'Tidak ada data'}</p> 
-                `;
-            } else {
-                console.log("No such document!");
+            try {
+                const docRef = doc(db, "patients", patientId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const patient = docSnap.data();
+                    patientInfoDisplay.innerHTML = `
+                        <p><strong>No. Rekam Medik:</strong> ${patient.rm_number || 'N/A'}</p>
+                        <p><strong>Nama:</strong> ${patient.name}</p>
+                        <p><strong>Tgl Lahir:</strong> ${patient.dob}</p>
+                        <p><strong>Alamat:</strong> ${patient.address}</p>
+                        <p><strong>Alergi:</strong> ${patient.allergies || 'Tidak ada data'}</p> 
+                    `;
+                } else {
+                    console.log("No such document!");
+                }
+            } catch (error) {
+                console.error("Error getting patient details: ", error);
             }
         };
 
@@ -292,10 +487,10 @@
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 const patient = docSnap.data();
+                document.getElementById('edit-patient-rm').value = patient.rm_number || '';
                 document.getElementById('edit-patient-name').value = patient.name;
                 document.getElementById('edit-patient-dob').value = patient.dob;
                 document.getElementById('edit-patient-address').value = patient.address;
-                // Isi data alergi di form edit
                 document.getElementById('edit-patient-allergies').value = patient.allergies || ''; 
                 editPatientModal.style.display = 'block';
             }
@@ -316,7 +511,7 @@
                     name: document.getElementById('edit-patient-name').value,
                     dob: document.getElementById('edit-patient-dob').value,
                     address: document.getElementById('edit-patient-address').value,
-                    allergies: document.getElementById('edit-patient-allergies').value // Perbarui data alergi
+                    allergies: document.getElementById('edit-patient-allergies').value
                 });
                 alert('Data pasien berhasil diperbarui!');
                 editPatientModal.style.display = 'none';
@@ -327,27 +522,43 @@
             }
         });
 
-        // --- Drug Therapy (No changes here) ---
+        // --- Drug Therapy ---
         addDrugTherapyForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentPatientId) return;
-            await addDoc(collection(db, "drugTherapies"), {
-                patientId: currentPatientId,
-                name: document.getElementById('drug-name').value,
-                dosage: document.getElementById('drug-dosage').value,
-                frequency: document.getElementById('drug-frequency').value,
-                route: document.getElementById('drug-route').value,
-                createdAt: serverTimestamp()
-            });
-            addDrugTherapyForm.reset();
+            try {
+                await addDoc(collection(db, "drugTherapies"), {
+                    patientId: currentPatientId,
+                    name: document.getElementById('drug-name').value,
+                    dosage: document.getElementById('drug-dosage').value,
+                    frequency: document.getElementById('drug-frequency').value,
+                    route: document.getElementById('drug-route').value,
+                    createdAt: serverTimestamp()
+                });
+                addDrugTherapyForm.reset();
+            } catch (error) {
+                console.error("Error adding drug therapy: ", error);
+            }
         });
 
         const displayDrugTherapies = (patientId) => {
-            const q = query(collection(db, "drugTherapies"), where("patientId", "==", patientId), orderBy("createdAt", "desc"));
+            // FIX: Removed orderBy from the query to prevent index errors.
+            const q = query(collection(db, "drugTherapies"), where("patientId", "==", patientId));
             onSnapshot(q, (snapshot) => {
                 drugTherapyList.innerHTML = '';
-                if (snapshot.empty) { drugTherapyList.innerHTML = '<li>Belum ada terapi.</li>'; return; }
-                snapshot.forEach((doc) => {
+                if (snapshot.empty) { 
+                    drugTherapyList.innerHTML = '<li>Belum ada terapi.</li>'; 
+                    return; 
+                }
+                
+                // Sorting is now done on the client-side.
+                const therapies = snapshot.docs.sort((a, b) => {
+                    const timeA = a.data().createdAt?.toDate() || 0;
+                    const timeB = b.data().createdAt?.toDate() || 0;
+                    return timeB - timeA; // Descending order
+                });
+
+                therapies.forEach((doc) => {
                     const therapy = doc.data();
                     const li = document.createElement('li');
                     li.innerHTML = `
@@ -355,6 +566,8 @@
                         <button class="btn btn-danger delete-therapy-btn" data-id="${doc.id}" style="padding: 4px 8px;">Hapus</button>`;
                     drugTherapyList.appendChild(li);
                 });
+            }, (error) => {
+                console.error("Error in drugTherapies snapshot listener: ", error);
             });
         };
 
@@ -366,7 +579,7 @@
             }
         });
 
-        // --- Medical Records (Visits) with Photo Upload (No changes here) ---
+        // --- Medical Records (Visits) with Photo Upload ---
         addMedicalRecordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentPatientId) return;
@@ -414,11 +627,23 @@
         });
 
         const displayMedicalRecords = (patientId) => {
-            const q = query(collection(db, "medicalRecords"), where("patientId", "==", patientId), orderBy("timestamp", "desc"));
+            // FIX: Removed orderBy from the query to prevent index errors.
+            const q = query(collection(db, "medicalRecords"), where("patientId", "==", patientId));
             onSnapshot(q, (snapshot) => {
                 medicalRecordList.innerHTML = '';
-                if (snapshot.empty) { medicalRecordList.innerHTML = '<li>Belum ada riwayat kunjungan.</li>'; return; }
-                snapshot.forEach((doc) => {
+                if (snapshot.empty) { 
+                    medicalRecordList.innerHTML = '<li>Belum ada riwayat kunjungan.</li>'; 
+                    return; 
+                }
+
+                // Sorting is now done on the client-side.
+                const records = snapshot.docs.sort((a, b) => {
+                    const timeA = a.data().timestamp.toDate();
+                    const timeB = b.data().timestamp.toDate();
+                    return timeB - timeA; // Descending order
+                });
+
+                records.forEach((doc) => {
                     const record = doc.data();
                     const visitDate = record.timestamp.toDate();
                     const li = document.createElement('li');
@@ -432,13 +657,15 @@
                         </div>`;
                     medicalRecordList.appendChild(li);
                 });
+            }, (error) => {
+                console.error("Error in medicalRecords snapshot listener: ", error);
             });
         };
 
         // --- Initial Load ---
-        displayPatients();
+        setInitialMedicalRecordNumber();
+        listenForPatients();
         showSection('management');
     </script>
 </body>
 </html>
-
