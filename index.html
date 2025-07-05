@@ -1,48 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekam Medis Home Care (Lengkap)</title>
+    <title>Rekam Medis Home Care (Fitur Lengkap)</title>
     <style>
-        /* CSS Anda tidak diubah, tetap sama */
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
-        .container { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); width: 100%; max-width: 800px; }
-        h1, h2 { color: #333; text-align: center; margin-bottom: 20px; }
-        .card { background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; padding: 20px; margin-bottom: 20px; }
-        form label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
-        form input[type="text"], form input[type="date"], form input[type="time"], form input[type="number"], form textarea, form select { width: calc(100% - 22px); padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        form button { background-color: #28a745; color: white; padding: 12px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; box-sizing: border-box; }
-        form button:hover { background-color: #218838; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+        .container { background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); width: 100%; max-width: 800px; }
+        h1, h2, h3, h4 { color: #333; text-align: center; margin-bottom: 25px; }
+        .card { background-color: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        form label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+        form input, form textarea, form select { width: calc(100% - 24px); padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; transition: border-color 0.3s; }
+        form input[type="file"] { padding: 5px; }
+        form input:focus, form textarea:focus { border-color: #007bff; outline: none; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .btn { color: white; padding: 12px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; box-sizing: border-box; transition: background-color 0.3s; text-align: center; display: inline-block; text-decoration: none; }
+        .btn-primary { background-color: #007bff; } .btn-primary:hover { background-color: #0056b3; }
+        .btn-success { background-color: #28a745; margin-top: 10px; } .btn-success:hover { background-color: #218838; }
+        .btn-secondary { background-color: #6c757d; } .btn-secondary:hover { background-color: #5a6268; }
+        .btn-danger { background-color: #dc3545; } .btn-danger:hover { background-color: #c82333; }
         ul { list-style: none; padding: 0; }
-        #patient-list li { background-color: #e9e9e9; border: 1px solid #ddd; padding: 15px; margin-bottom: 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
-        #patient-list li button { background-color: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        #patient-list li button:hover { background-color: #0056b3; }
-        #medical-record-list li { flex-direction: column; align-items: flex-start; padding: 15px; background-color: #e0f7fa; border-left: 5px solid #00bcd4; margin-bottom: 10px; border-radius: 4px; }
-        #medical-record-list li .record-header { font-weight: bold; margin-bottom: 10px; font-size: 1.1em; }
-        #medical-record-list li p { margin: 5px 0; }
-        #medical-record-list li strong { color: #00796b; }
-        #medical-record-list li span { font-size: 0.9em; color: #666; margin-top: 10px; display: block; text-align: right; }
-        #back-to-patients { background-color: #6c757d; margin-top: 20px; }
-        #back-to-patients:hover { background-color: #5a6268; }
+        #patient-list li, #drug-therapy-list li { background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; margin-bottom: 8px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.2s; }
+        #patient-list li:hover, #drug-therapy-list li:hover { background-color: #e9ecef; }
+        .list-item-info { flex-grow: 1; }
+        .list-item-actions button { margin-left: 8px; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        #medical-record-list li { display: flex; flex-direction: column; align-items: flex-start; padding: 15px; background-color: #e0f7fa; border-left: 5px solid #00bcd4; margin-bottom: 15px; border-radius: 4px; }
+        .record-header { font-weight: bold; margin-bottom: 10px; font-size: 1.1em; }
+        .record-body p { margin: 5px 0; }
+        .record-body strong { color: #00796b; }
+        .record-photo { max-width: 100%; border-radius: 5px; margin-top: 10px; }
+        hr { border: 0; height: 1px; background-color: #e0e0e0; margin: 30px 0; }
+        
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 25px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 10px; position: relative; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; top: 10px; right: 20px; }
+        .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
+        .patient-info-display { padding: 15px; background-color: #e9ecef; border-radius: 5px; }
+        .patient-info-display p { margin: 8px 0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Rekam Medis Perawat Home Care</h1>
-
-        <div class="card" id="patient-management-section">
+        <!-- SECTION 1: Patient List -->
+        <div id="patient-management-section">
+            <h1>Rekam Medis Perawat Home Care</h1>
             <div class="card">
                 <h2>Tambah Pasien Baru</h2>
                 <form id="add-patient-form">
-                    <label for="patient-name">Nama Pasien:</label>
-                    <input type="text" id="patient-name" required>
-                    <label for="patient-dob">Tanggal Lahir:</label>
-                    <input type="date" id="patient-dob" required>
-                    <label for="patient-address">Alamat:</label>
-                    <textarea id="patient-address" rows="3" required></textarea>
-                    <button type="submit">Tambah Pasien</button>
+                    <label for="patient-name">Nama Pasien:</label><input type="text" id="patient-name" required>
+                    <label for="patient-dob">Tanggal Lahir:</label><input type="date" id="patient-dob" required>
+                    <label for="patient-address">Alamat:</label><textarea id="patient-address" rows="3" required></textarea>
+                    <!-- INPUT BARU: RIWAYAT ALERGI -->
+                    <label for="patient-allergies">Riwayat Alergi:</label><textarea id="patient-allergies" rows="3" placeholder="Contoh: Paracetamol, Udang, Debu"></textarea>
+                    <button type="submit" class="btn btn-success">Tambah Pasien</button>
                 </form>
             </div>
             <div class="card">
@@ -51,75 +61,90 @@
             </div>
         </div>
 
-        <div class="card" id="medical-record-section" style="display: none;">
-            <h2>Catatan Kunjungan untuk: <span id="current-patient-name"></span></h2>
-            <form id="add-medical-record-form">
-                
-                <div class="form-grid">
-                    <div>
-                        <label for="visit-date">Tanggal Kunjungan:</label>
-                        <input type="date" id="visit-date" required>
-                    </div>
-                    <div>
-                        <label for="visit-time">Jam Kunjungan:</label>
-                        <input type="time" id="visit-time" required>
-                    </div>
+        <!-- SECTION 2: Patient Detail -->
+        <div id="patient-detail-section" style="display: none;">
+            <h2 style="margin-bottom: 10px;">Detail Pasien</h2>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="text-align: left; margin: 0;">Informasi Pasien</h3>
+                    <button id="edit-patient-btn" class="btn btn-primary" style="width: auto; padding: 8px 15px;">Edit Data</button>
                 </div>
-
-                <hr>
-                <h3>Pemeriksaan Tanda-Tanda Vital (TTV)</h3>
-                <div class="form-grid">
-                    <div>
-                        <label for="blood-pressure">Tekanan Darah (mmHg):</label>
-                        <input type="text" id="blood-pressure" placeholder="Contoh: 120/80">
+                <div id="patient-info-display" class="patient-info-display"></div>
+            </div>
+            <div class="card">
+                <h3>Daftar Terapi Obat</h3>
+                <form id="add-drug-therapy-form">
+                    <div class="form-grid">
+                        <div><label for="drug-name">Nama Obat:</label><input type="text" id="drug-name" required></div>
+                        <div><label for="drug-dosage">Dosis:</label><input type="text" id="drug-dosage" placeholder="Contoh: 500 mg"></div>
+                        <div><label for="drug-frequency">Frekuensi:</label><input type="text" id="drug-frequency" placeholder="Contoh: 3x sehari"></div>
+                        <div><label for="drug-route">Rute Pemberian:</label><input type="text" id="drug-route" placeholder="Contoh: Oral"></div>
                     </div>
-                    <div>
-                        <label for="temperature">Suhu (°C):</label>
-                        <input type="number" step="0.1" id="temperature" placeholder="Contoh: 36.5">
+                    <button type="submit" class="btn btn-success">Tambah Terapi</button>
+                </form>
+                <h4 style="margin-top: 30px; text-align: left; padding-left: 5px;">Terapi Aktif:</h4>
+                <ul id="drug-therapy-list"></ul>
+            </div>
+            <button id="view-visits-btn" class="btn btn-primary">Lihat & Tambah Riwayat Kunjungan</button>
+            <button id="back-to-patients-from-detail" class="btn btn-secondary" style="margin-top: 10px;">Kembali ke Daftar Pasien</button>
+        </div>
+
+        <!-- SECTION 3: Visit History -->
+        <div id="visit-history-section" style="display: none;">
+            <h2>Riwayat Kunjungan: <span id="visit-patient-name"></span></h2>
+            <div class="card">
+                <h3>Tambah Catatan Kunjungan Baru</h3>
+                <form id="add-medical-record-form">
+                    <div class="form-grid">
+                        <div><label for="visit-date">Tanggal:</label><input type="date" id="visit-date" required></div>
+                        <div><label for="visit-time">Jam:</label><input type="time" id="visit-time" required></div>
                     </div>
-                    <div>
-                        <label for="pulse">Nadi (x/menit):</label>
-                        <input type="number" id="pulse" placeholder="Contoh: 80">
+                    <hr><h4>TTV</h4>
+                    <div class="form-grid">
+                        <div><label>Tek. Darah:</label><input type="text" id="blood-pressure" placeholder="120/80"></div>
+                        <div><label>Suhu:</label><input type="number" step="0.1" id="temperature" placeholder="36.5"></div>
+                        <div><label>Nadi:</label><input type="number" id="pulse" placeholder="80"></div>
+                        <div><label>Pernapasan:</label><input type="number" id="respiration" placeholder="20"></div>
                     </div>
-                    <div>
-                        <label for="respiration">Pernapasan (x/menit):</label>
-                        <input type="number" id="respiration" placeholder="Contoh: 20">
-                    </div>
-                </div>
+                    <hr><h4>SOAP</h4>
+                    <label><strong>S:</strong></label><textarea id="soap-s" rows="3" required></textarea>
+                    <label><strong>O:</strong></label><textarea id="soap-o" rows="4" required></textarea>
+                    <label><strong>A:</strong></label><textarea id="soap-a" rows="3" required></textarea>
+                    <label><strong>P:</strong></label><textarea id="soap-p" rows="4" required></textarea>
+                    <hr>
+                    <label><strong>Foto Dokumentasi (Max 1MB):</strong></label><input type="file" id="visit-photo" accept="image/*">
+                    <label>Catatan Pemberian Obat Saat Kunjungan:</label><textarea id="medication-notes" rows="3"></textarea>
+                    <button type="submit" class="btn btn-success">Simpan Kunjungan</button>
+                </form>
+            </div>
+            <div class="card">
+                <h3>Daftar Kunjungan Terdahulu</h3>
+                <ul id="medical-record-list"></ul>
+            </div>
+            <button id="back-to-detail-btn" class="btn btn-secondary">Kembali ke Detail Pasien</button>
+        </div>
+    </div>
 
-                <hr>
-                <h3>Dokumentasi SOAP</h3>
-                <label for="soap-s"><strong>S (Subjektif):</strong> Keluhan Pasien</label>
-                <textarea id="soap-s" rows="3" required placeholder="Apa yang dikatakan pasien tentang kondisinya?"></textarea>
-
-                <label for="soap-o"><strong>O (Objektif):</strong> Hasil Pengamatan & Pemeriksaan</label>
-                <textarea id="soap-o" rows="4" required placeholder="Data hasil TTV, kondisi luka, tingkat kesadaran, dll."></textarea>
-
-                <label for="soap-a"><strong>A (Assessment):</strong> Analisis / Diagnosa Keperawatan</label>
-                <textarea id="soap-a" rows="3" required placeholder="Masalah keperawatan yang ditemukan. Contoh: Nyeri akut, risiko infeksi."></textarea>
-
-                <label for="soap-p"><strong>P (Planning):</strong> Perencanaan & Intervensi</label>
-                <textarea id="soap-p" rows="4" required placeholder="Tindakan yang telah dan akan dilakukan. Contoh: Memberikan obat, edukasi keluarga."></textarea>
-
-                <hr>
-                <label for="medication-notes">Catatan Pemberian Obat:</label>
-                <textarea id="medication-notes" rows="3" placeholder="Obat yang diberikan, dosis, dan jam pemberian."></textarea>
-
-                <button type="submit">Simpan Catatan Kunjungan</button>
+    <!-- Edit Patient Modal -->
+    <div id="edit-patient-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-modal-btn">&times;</span>
+            <h2>Edit Data Pasien</h2>
+            <form id="edit-patient-form">
+                <label for="edit-patient-name">Nama Pasien:</label><input type="text" id="edit-patient-name" required>
+                <label for="edit-patient-dob">Tanggal Lahir:</label><input type="date" id="edit-patient-dob" required>
+                <label for="edit-patient-address">Alamat:</label><textarea id="edit-patient-address" rows="3" required></textarea>
+                <!-- INPUT BARU: EDIT RIWAYAT ALERGI -->
+                <label for="edit-patient-allergies">Riwayat Alergi:</label><textarea id="edit-patient-allergies" rows="3"></textarea>
+                <button type="submit" class="btn btn-success">Simpan Perubahan</button>
             </form>
-
-            <h3 style="margin-top: 30px;">Riwayat Kunjungan</h3>
-            <ul id="medical-record-list"></ul>
-            <button id="back-to-patients">Kembali ke Daftar Pasien</button>
         </div>
     </div>
 
     <script type="module">
-        // Import Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp, doc, deleteDoc, getDocs, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-        // Konfigurasi Firebase Anda
         const firebaseConfig = {
             apiKey: "AIzaSyBNlEqwNBYi7uYdDy4iXd7sh1JX4PjIk5M",
             authDomain: "lifedata-9a38d.firebaseapp.com",
@@ -129,40 +154,56 @@
             appId: "1:85081493262:web:61201bacb087fc34cc915f"
         };
 
-        // Inisialisasi Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Referensi Elemen HTML
-        const addPatientForm = document.getElementById('add-patient-form');
-        const patientNameInput = document.getElementById('patient-name');
-        const patientDobInput = document.getElementById('patient-dob');
-        const patientAddressTextarea = document.getElementById('patient-address');
+        // --- Element References ---
+        const sections = {
+            management: document.getElementById('patient-management-section'),
+            detail: document.getElementById('patient-detail-section'),
+            visits: document.getElementById('visit-history-section')
+        };
         const patientList = document.getElementById('patient-list');
-        const patientManagementSection = document.getElementById('patient-management-section');
-        const medicalRecordSection = document.getElementById('medical-record-section');
-        const currentPatientNameSpan = document.getElementById('current-patient-name');
+        const addPatientForm = document.getElementById('add-patient-form');
+        const patientInfoDisplay = document.getElementById('patient-info-display');
+        const addDrugTherapyForm = document.getElementById('add-drug-therapy-form');
+        const drugTherapyList = document.getElementById('drug-therapy-list');
         const addMedicalRecordForm = document.getElementById('add-medical-record-form');
         const medicalRecordList = document.getElementById('medical-record-list');
-        const backToPatientsButton = document.getElementById('back-to-patients');
+        const editPatientModal = document.getElementById('edit-patient-modal');
+        const editPatientForm = document.getElementById('edit-patient-form');
 
         let currentPatientId = null;
+        let currentPatientName = '';
 
-        // --- FUNGSI PASIEN (Tidak Banyak Berubah) ---
+        // --- Navigation Logic ---
+        const showSection = (sectionName) => {
+            Object.values(sections).forEach(section => section.style.display = 'none');
+            sections[sectionName].style.display = 'block';
+        };
 
+        document.getElementById('back-to-patients-from-detail').addEventListener('click', () => showSection('management'));
+        document.getElementById('view-visits-btn').addEventListener('click', () => {
+            document.getElementById('visit-patient-name').textContent = currentPatientName;
+            showSection('visits');
+        });
+        document.getElementById('back-to-detail-btn').addEventListener('click', () => showSection('detail'));
+        
+        // --- Patient Management ---
         addPatientForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
                 await addDoc(collection(db, "patients"), {
-                    name: patientNameInput.value,
-                    dob: patientDobInput.value,
-                    address: patientAddressTextarea.value,
+                    name: document.getElementById('patient-name').value,
+                    dob: document.getElementById('patient-dob').value,
+                    address: document.getElementById('patient-address').value,
+                    allergies: document.getElementById('patient-allergies').value, // Simpan data alergi
                     createdAt: serverTimestamp()
                 });
                 alert('Pasien berhasil ditambahkan!');
                 addPatientForm.reset();
-            } catch (e) {
-                console.error("Error adding document: ", e);
+            } catch (error) {
+                console.error("Error adding patient: ", error);
                 alert('Gagal menambahkan pasien.');
             }
         });
@@ -171,120 +212,233 @@
             const q = query(collection(db, "patients"), orderBy("name"));
             onSnapshot(q, (snapshot) => {
                 patientList.innerHTML = '';
-                if (snapshot.empty) {
-                    patientList.innerHTML = '<li>Belum ada pasien terdaftar.</li>';
-                    return;
-                }
+                if (snapshot.empty) { patientList.innerHTML = '<li>Belum ada pasien.</li>'; return; }
                 snapshot.forEach((doc) => {
                     const patient = doc.data();
                     const li = document.createElement('li');
                     li.innerHTML = `
-                        <span><strong>${patient.name}</strong><br><small>Lahir: ${patient.dob}</small></span>
-                        <button data-id="${doc.id}" data-name="${patient.name}">Lihat Catatan</button>
-                    `;
+                        <div class="list-item-info"><strong>${patient.name}</strong><br><small>Lahir: ${patient.dob}</small></div>
+                        <div class="list-item-actions">
+                            <button class="btn btn-primary" data-id="${doc.id}" data-name="${patient.name}" style="padding: 6px 12px;">Detail</button>
+                            <button class="btn btn-danger" data-id="${doc.id}" data-name="${patient.name}" style="padding: 6px 12px;">Hapus</button>
+                        </div>`;
                     patientList.appendChild(li);
                 });
             });
         };
 
-        patientList.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON') {
-                currentPatientId = e.target.dataset.id;
-                currentPatientNameSpan.textContent = e.target.dataset.name;
-                patientManagementSection.style.display = 'none';
-                medicalRecordSection.style.display = 'block';
-                // Set tanggal & waktu kunjungan ke nilai saat ini
-                document.getElementById('visit-date').valueAsDate = new Date();
-                document.getElementById('visit-time').value = new Date().toTimeString().slice(0,5);
-                displayMedicalRecords(currentPatientId);
+        patientList.addEventListener('click', async (e) => {
+            const target = e.target;
+            if (target.tagName !== 'BUTTON') return;
+
+            const patientId = target.dataset.id;
+            const patientName = target.dataset.name;
+
+            if (target.classList.contains('btn-primary')) {
+                currentPatientId = patientId;
+                currentPatientName = patientName;
+                await displayPatientDetails(patientId);
+                displayDrugTherapies(patientId);
+                displayMedicalRecords(patientId);
+                showSection('detail');
+            }
+
+            if (target.classList.contains('btn-danger')) {
+                if (confirm(`Yakin ingin menghapus ${patientName} dan semua datanya?`)) {
+                    await deletePatientAndRecords(patientId);
+                }
+            }
+        });
+        
+        const deletePatientAndRecords = async (patientId) => {
+            if (!patientId) return;
+            try {
+                const collectionsToDelete = ["medicalRecords", "drugTherapies"];
+                for (const coll of collectionsToDelete) {
+                    const q = query(collection(db, coll), where("patientId", "==", patientId));
+                    const snapshot = await getDocs(q);
+                    const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+                    await Promise.all(deletePromises);
+                }
+                await deleteDoc(doc(db, "patients", patientId));
+                alert('Pasien dan semua datanya telah berhasil dihapus.');
+                showSection('management');
+            } catch (error) {
+                console.error("Error deleting patient: ", error);
+                alert('Gagal menghapus pasien.');
+            }
+        };
+
+        // --- Patient Detail & Edit ---
+        const displayPatientDetails = async (patientId) => {
+            const docRef = doc(db, "patients", patientId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const patient = docSnap.data();
+                // Tampilkan data alergi
+                patientInfoDisplay.innerHTML = `
+                    <p><strong>Nama:</strong> ${patient.name}</p>
+                    <p><strong>Tgl Lahir:</strong> ${patient.dob}</p>
+                    <p><strong>Alamat:</strong> ${patient.address}</p>
+                    <p><strong>Alergi:</strong> ${patient.allergies || 'Tidak ada data'}</p> 
+                `;
+            } else {
+                console.log("No such document!");
+            }
+        };
+
+        document.getElementById('edit-patient-btn').addEventListener('click', async () => {
+            const docRef = doc(db, "patients", currentPatientId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const patient = docSnap.data();
+                document.getElementById('edit-patient-name').value = patient.name;
+                document.getElementById('edit-patient-dob').value = patient.dob;
+                document.getElementById('edit-patient-address').value = patient.address;
+                // Isi data alergi di form edit
+                document.getElementById('edit-patient-allergies').value = patient.allergies || ''; 
+                editPatientModal.style.display = 'block';
             }
         });
 
-        // --- FUNGSI CATATAN MEDIS (TELAH DIPERBARUI) ---
+        document.getElementById('close-modal-btn').addEventListener('click', () => editPatientModal.style.display = 'none');
+        window.addEventListener('click', (e) => {
+            if (e.target == editPatientModal) {
+                editPatientModal.style.display = 'none';
+            }
+        });
 
-        // Menambah Catatan Medis Lengkap
+        editPatientForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const patientRef = doc(db, "patients", currentPatientId);
+            try {
+                await updateDoc(patientRef, {
+                    name: document.getElementById('edit-patient-name').value,
+                    dob: document.getElementById('edit-patient-dob').value,
+                    address: document.getElementById('edit-patient-address').value,
+                    allergies: document.getElementById('edit-patient-allergies').value // Perbarui data alergi
+                });
+                alert('Data pasien berhasil diperbarui!');
+                editPatientModal.style.display = 'none';
+                await displayPatientDetails(currentPatientId);
+            } catch (error) {
+                console.error("Error updating patient data: ", error);
+                alert('Gagal memperbarui data pasien.');
+            }
+        });
+
+        // --- Drug Therapy (No changes here) ---
+        addDrugTherapyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentPatientId) return;
+            await addDoc(collection(db, "drugTherapies"), {
+                patientId: currentPatientId,
+                name: document.getElementById('drug-name').value,
+                dosage: document.getElementById('drug-dosage').value,
+                frequency: document.getElementById('drug-frequency').value,
+                route: document.getElementById('drug-route').value,
+                createdAt: serverTimestamp()
+            });
+            addDrugTherapyForm.reset();
+        });
+
+        const displayDrugTherapies = (patientId) => {
+            const q = query(collection(db, "drugTherapies"), where("patientId", "==", patientId), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                drugTherapyList.innerHTML = '';
+                if (snapshot.empty) { drugTherapyList.innerHTML = '<li>Belum ada terapi.</li>'; return; }
+                snapshot.forEach((doc) => {
+                    const therapy = doc.data();
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="list-item-info"><strong>${therapy.name}</strong> (${therapy.dosage || 'N/A'})<br><small>${therapy.frequency || 'N/A'}, via ${therapy.route || 'N/A'}</small></div>
+                        <button class="btn btn-danger delete-therapy-btn" data-id="${doc.id}" style="padding: 4px 8px;">Hapus</button>`;
+                    drugTherapyList.appendChild(li);
+                });
+            });
+        };
+
+        drugTherapyList.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('delete-therapy-btn')) {
+                if (confirm('Yakin ingin menghapus terapi ini?')) {
+                    await deleteDoc(doc(db, "drugTherapies", e.target.dataset.id));
+                }
+            }
+        });
+
+        // --- Medical Records (Visits) with Photo Upload (No changes here) ---
         addMedicalRecordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!currentPatientId) return alert('Pilih pasien terlebih dahulu.');
+            if (!currentPatientId) return;
 
-            // Menggabungkan tanggal dan waktu menjadi satu objek Date untuk timestamp
             const visitDate = document.getElementById('visit-date').value;
             const visitTime = document.getElementById('visit-time').value;
-            const visitTimestamp = new Date(`${visitDate}T${visitTime}`);
+            const photoFile = document.getElementById('visit-photo').files[0];
+            
+            let photoURL = '';
+            if (photoFile) {
+                if (photoFile.size > 1048576) {
+                    alert('Ukuran foto terlalu besar! Maksimal 1MB.');
+                    return;
+                }
+                photoURL = await toBase64(photoFile);
+            }
 
-            // Mengambil semua data dari form
             const recordData = {
                 patientId: currentPatientId,
-                timestamp: visitTimestamp,
-                ttv: {
-                    blood_pressure: document.getElementById('blood-pressure').value,
-                    temperature: document.getElementById('temperature').value,
-                    pulse: document.getElementById('pulse').value,
-                    respiration: document.getElementById('respiration').value,
-                },
-                soap: {
-                    s: document.getElementById('soap-s').value,
-                    o: document.getElementById('soap-o').value,
-                    a: document.getElementById('soap-a').value,
-                    p: document.getElementById('soap-p').value,
-                },
+                timestamp: new Date(`${visitDate}T${visitTime}`),
+                ttv: { blood_pressure: document.getElementById('blood-pressure').value, temperature: document.getElementById('temperature').value, pulse: document.getElementById('pulse').value, respiration: document.getElementById('respiration').value },
+                soap: { s: document.getElementById('soap-s').value, o: document.getElementById('soap-o').value, a: document.getElementById('soap-a').value, p: document.getElementById('soap-p').value },
                 medication_notes: document.getElementById('medication-notes').value,
-                createdAt: serverTimestamp() // Untuk pelacakan internal
+                photoURL: photoURL,
+                createdAt: serverTimestamp()
             };
 
             try {
                 await addDoc(collection(db, "medicalRecords"), recordData);
                 alert('Catatan kunjungan berhasil disimpan!');
                 addMedicalRecordForm.reset();
-                // Set tanggal & waktu kunjungan kembali ke nilai saat ini untuk entri berikutnya
                 document.getElementById('visit-date').valueAsDate = new Date();
-                document.getElementById('visit-time').value = new Date().toTimeString().slice(0,5);
+                document.getElementById('visit-time').value = new Date().toTimeString().slice(0, 5);
             } catch (err) {
-                console.error("Error adding medical record: ", err);
-                alert('Gagal menyimpan catatan. Lihat konsol untuk detail.');
+                console.error("Error adding record: ", err);
+                alert('Gagal menyimpan catatan.');
             }
         });
 
-        // Menampilkan Catatan Medis Lengkap
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
         const displayMedicalRecords = (patientId) => {
             const q = query(collection(db, "medicalRecords"), where("patientId", "==", patientId), orderBy("timestamp", "desc"));
             onSnapshot(q, (snapshot) => {
                 medicalRecordList.innerHTML = '';
-                if (snapshot.empty) {
-                    medicalRecordList.innerHTML = '<li>Belum ada riwayat kunjungan untuk pasien ini.</li>';
-                    return;
-                }
+                if (snapshot.empty) { medicalRecordList.innerHTML = '<li>Belum ada riwayat kunjungan.</li>'; return; }
                 snapshot.forEach((doc) => {
                     const record = doc.data();
                     const visitDate = record.timestamp.toDate();
-                    
                     const li = document.createElement('li');
                     li.innerHTML = `
-                        <div class="record-header">Kunjungan: ${visitDate.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} - ${visitDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div>
-                        
-                        <p><strong>TTV:</strong> Tek. Darah: ${record.ttv.blood_pressure || '-'} mmHg, Suhu: ${record.ttv.temperature || '-'} °C, Nadi: ${record.ttv.pulse || '-'} x/m, Pernapasan: ${record.ttv.respiration || '-'} x/m</p>
-                        
-                        <p><strong>S (Subjektif):</strong> ${record.soap.s}</p>
-                        <p><strong>O (Objektif):</strong> ${record.soap.o}</p>
-                        <p><strong>A (Assessment):</strong> ${record.soap.a}</p>
-                        <p><strong>P (Planning):</strong> ${record.soap.p}</p>
-                        
-                        ${record.medication_notes ? `<p><strong>Catatan Obat:</strong> ${record.medication_notes}</p>` : ''}
-                    `;
+                        <div class="record-header">Kunjungan: ${visitDate.toLocaleDateString('id-ID', { dateStyle: 'full' })} - ${visitDate.toLocaleTimeString('id-ID', { timeStyle: 'short' })}</div>
+                        <div class="record-body">
+                            <p><strong>TTV:</strong> TD: ${record.ttv.blood_pressure || '-'}, S: ${record.ttv.temperature || '-'}°C, N: ${record.ttv.pulse || '-'}x/m, RR: ${record.ttv.respiration || '-'}x/m</p>
+                            <p><strong>S:</strong> ${record.soap.s}</p><p><strong>O:</strong> ${record.soap.o}</p><p><strong>A:</strong> ${record.soap.a}</p><p><strong>P:</strong> ${record.soap.p}</p>
+                            ${record.medication_notes ? `<p><strong>Catatan Obat:</strong> ${record.medication_notes}</p>` : ''}
+                            ${record.photoURL ? `<img src="${record.photoURL}" alt="Dokumentasi Kunjungan" class="record-photo">` : ''}
+                        </div>`;
                     medicalRecordList.appendChild(li);
                 });
             });
         };
 
-        // Fungsi Tombol Kembali
-        backToPatientsButton.addEventListener('click', () => {
-            currentPatientId = null;
-            patientManagementSection.style.display = 'block';
-            medicalRecordSection.style.display = 'none';
-        });
-
-        // Inisialisasi awal
+        // --- Initial Load ---
         displayPatients();
+        showSection('management');
     </script>
 </body>
 </html>
+
