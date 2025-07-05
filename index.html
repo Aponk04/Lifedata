@@ -193,7 +193,12 @@
         <!-- SECTION 1: Patient List -->
         <div id="patient-management-section">
             <h1>Rekam Medis Perawat Home Care</h1>
-            <div class="card">
+
+            <!-- NEW: Button to show the add patient form -->
+            <button id="show-add-patient-btn" class="btn btn-primary" style="margin-bottom: 20px;">Tambah Pasien Baru</button>
+
+            <!-- MODIFIED: Add patient card is now hidden by default -->
+            <div id="add-patient-card" class="card" style="display: none;">
                 <h2>Tambah Pasien Baru</h2>
                 <form id="add-patient-form">
                     <label for="patient-rm">No. Rekam Medik:</label>
@@ -202,9 +207,13 @@
                     <label for="patient-dob">Tanggal Lahir:</label><input type="date" id="patient-dob" required>
                     <label for="patient-address">Alamat:</label><textarea id="patient-address" rows="3" required></textarea>
                     <label for="patient-allergies">Riwayat Alergi:</label><textarea id="patient-allergies" rows="3" placeholder="Contoh: Paracetamol, Udang, Debu"></textarea>
-                    <button type="submit" class="btn btn-success">Tambah Pasien</button>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button type="submit" class="btn btn-success" style="margin-top: 0;">Simpan Pasien</button>
+                        <button type="button" id="cancel-add-patient-btn" class="btn btn-secondary" style="margin-top: 0;">Batal</button>
+                    </div>
                 </form>
             </div>
+
             <div class="card">
                 <div class="list-header">
                     <h2>Daftar Pasien</h2>
@@ -345,6 +354,10 @@
         const editDrugModal = document.getElementById('edit-drug-modal');
         const editDrugTherapyForm = document.getElementById('edit-drug-therapy-form');
         const closeDrugModalBtn = document.getElementById('close-drug-modal-btn');
+        // NEW: References for toggling the add patient form
+        const showAddPatientBtn = document.getElementById('show-add-patient-btn');
+        const addPatientCard = document.getElementById('add-patient-card');
+        const cancelAddPatientBtn = document.getElementById('cancel-add-patient-btn');
 
         let currentPatientId = null;
         let currentPatientName = '';
@@ -377,6 +390,20 @@
         };
 
         // --- Patient Management ---
+
+        // NEW: Logic to show/hide the add patient form
+        showAddPatientBtn.addEventListener('click', () => {
+            addPatientCard.style.display = 'block';
+            showAddPatientBtn.style.display = 'none';
+        });
+
+        cancelAddPatientBtn.addEventListener('click', () => {
+            addPatientCard.style.display = 'none';
+            showAddPatientBtn.style.display = 'block';
+            addPatientForm.reset();
+            setInitialMedicalRecordNumber();
+        });
+
         addPatientForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
@@ -390,6 +417,9 @@
                 });
                 alert('Pasien berhasil ditambahkan!');
                 addPatientForm.reset();
+                // Hide form and show button again after successful submission
+                addPatientCard.style.display = 'none';
+                showAddPatientBtn.style.display = 'block';
                 setInitialMedicalRecordNumber();
             } catch (error) {
                 console.error("Error adding patient: ", error);
@@ -627,7 +657,7 @@
                 }
             }
 
-            // NEW: Handle Delete Button Click
+            // Handle Delete Button Click
             if (target.classList.contains('delete-therapy-btn')) {
                 if (confirm('Apakah anda yakin menghapus obat ini dari daftar?')) {
                     try {
