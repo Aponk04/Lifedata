@@ -293,9 +293,25 @@
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; top: 10px; right: 20px; }
         .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
         
-        /* Patient Info Display */
-        .patient-info-display { padding: 15px; background-color: #e9ecef; border-radius: 5px; }
-        .patient-info-display p { margin: 8px 0; }
+        /* Patient & Nurse Info Display */
+        .patient-info-display, .nurse-info-display { padding: 15px; background-color: #e9ecef; border-radius: 5px; }
+        .patient-info-display p, .nurse-info-display p { margin: 8px 0; }
+
+        /* NEW: Nurse Detail Layout */
+        #nurse-detail-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        #nurse-info-display {
+            flex-grow: 1;
+        }
+        #nurse-photo-container img {
+            max-width: 150px;
+            height: auto;
+            border-radius: 8px;
+            border: 3px solid #e9ecef;
+        }
     </style>
 </head>
 <body>
@@ -439,6 +455,8 @@
                         <label for="nurse-id">ID Perawat:</label><input type="text" id="nurse-id" required>
                         <label for="nurse-reg-number">Nomor Registrasi:</label><input type="text" id="nurse-reg-number" required>
                         <label for="nurse-visit-area">Wilayah Kunjungan:</label><textarea id="nurse-visit-area" rows="3"></textarea>
+                        <label for="nurse-photo">Foto Perawat (Max 1MB):</label>
+                        <input type="file" id="nurse-photo" accept="image/*">
                         <div style="display: flex; gap: 10px; margin-top: 10px;">
                             <button type="submit" class="btn btn-success" style="margin-top: 0;">Simpan Perawat</button>
                             <button type="button" id="cancel-add-nurse-btn" class="btn btn-secondary" style="margin-top: 0;">Batal</button>
@@ -455,7 +473,12 @@
             </div>
             <div id="nurse-detail-view" style="display: none;">
                 <h2 id="nurse-detail-name"></h2>
-                <div id="nurse-info-display" class="patient-info-display"></div>
+                <div id="nurse-detail-content">
+                    <div id="nurse-info-display" class="nurse-info-display"></div>
+                    <div id="nurse-photo-container">
+                        <img id="nurse-detail-photo" src="" alt="Foto Perawat">
+                    </div>
+                </div>
                 <button id="back-to-nurses-btn" class="btn btn-secondary" style="margin-top: 20px;">Kembali ke Daftar Perawat</button>
             </div>
         </main>
@@ -474,7 +497,7 @@
         </main>
     </div>
 
-    <!-- FIX: Modals are now fully defined -->
+    <!-- Modals -->
     <div id="edit-patient-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="close-modal-btn">&times;</span>
@@ -509,6 +532,24 @@
                 <label for="edit-drug-dosage">Dosis:</label><input type="text" id="edit-drug-dosage">
                 <label for="edit-drug-frequency">Frekuensi:</label><input type="text" id="edit-drug-frequency">
                 <label for="edit-drug-route">Rute Pemberian:</label><input type="text" id="edit-drug-route">
+                <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+            </form>
+        </div>
+    </div>
+    <!-- NEW: Edit Nurse Modal -->
+    <div id="edit-nurse-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-nurse-modal-btn">&times;</span>
+            <h2>Edit Data Perawat</h2>
+            <form id="edit-nurse-form">
+                <input type="hidden" id="edit-nurse-id">
+                <label for="edit-nurse-name">Nama Perawat:</label><input type="text" id="edit-nurse-name" required>
+                <label for="edit-nurse-dob">Tanggal Lahir:</label><input type="date" id="edit-nurse-dob" required>
+                <label for="edit-nurse-id-field">ID Perawat:</label><input type="text" id="edit-nurse-id-field" required>
+                <label for="edit-nurse-reg-number">Nomor Registrasi:</label><input type="text" id="edit-nurse-reg-number" required>
+                <label for="edit-nurse-visit-area">Wilayah Kunjungan:</label><textarea id="edit-nurse-visit-area" rows="3"></textarea>
+                <label for="edit-nurse-photo">Ganti Foto (Max 1MB):</label>
+                <input type="file" id="edit-nurse-photo" accept="image/*">
                 <button type="submit" class="btn btn-success">Simpan Perubahan</button>
             </form>
         </div>
@@ -576,6 +617,10 @@
         const nurseInfoDisplay = document.getElementById('nurse-info-display');
         const searchNurseInput = document.getElementById('search-nurse');
         const backToNursesBtn = document.getElementById('back-to-nurses-btn');
+        // NEW: Edit Nurse Modal References
+        const editNurseModal = document.getElementById('edit-nurse-modal');
+        const editNurseForm = document.getElementById('edit-nurse-form');
+        const closeNurseModalBtn = document.getElementById('close-nurse-modal-btn');
 
 
         let currentPatientId = null;
@@ -600,7 +645,6 @@
             if (targetSection !== 'patients') {
                  showSubSection('management');
             }
-            // Close side nav on mobile after clicking a link
             if (navLinksContainer.classList.contains('is-open')) {
                 navLinksContainer.classList.remove('is-open');
             }
@@ -1146,6 +1190,23 @@
         };
 
         // --- NEW: Nurse Data Management ---
+        const authenticateAdmin = (action) => {
+            if (!confirm(`Apakah anda memiliki ijin untuk ${action} data ini?`)) {
+                return false;
+            }
+            const username = prompt("Masukkan username:");
+            if (username !== "Aponk") {
+                alert("Username salah.");
+                return false;
+            }
+            const password = prompt("Masukkan password:");
+            if (password !== "2025") {
+                alert("Password salah.");
+                return false;
+            }
+            return true;
+        };
+
         showAddNurseBtn.addEventListener('click', () => {
             addNurseCard.style.display = 'block';
             showAddNurseBtn.style.display = 'none';
@@ -1159,6 +1220,16 @@
 
         addNurseForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const photoFile = document.getElementById('nurse-photo').files[0];
+            let photoURL = '';
+            if (photoFile) {
+                if (photoFile.size > 1048576) { // 1MB check
+                    alert('Ukuran foto terlalu besar! Maksimal 1MB.');
+                    return;
+                }
+                photoURL = await toBase64(photoFile);
+            }
+
             try {
                 await addDoc(collection(db, "nurses"), {
                     name: document.getElementById('nurse-name').value,
@@ -1166,6 +1237,7 @@
                     nurseId: document.getElementById('nurse-id').value,
                     regNumber: document.getElementById('nurse-reg-number').value,
                     visitArea: document.getElementById('nurse-visit-area').value,
+                    photoURL: photoURL,
                     createdAt: serverTimestamp()
                 });
                 alert('Data perawat berhasil ditambahkan!');
@@ -1200,7 +1272,9 @@
                         <small>ID: ${nurse.nurseId}</small>
                     </div>
                     <div class="list-item-actions">
-                        <button class="btn btn-primary view-nurse-detail-btn" data-id="${doc.id}">Detail</button>
+                        <button class="btn btn-primary view-nurse-detail-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;">Detail</button>
+                        <button class="btn btn-warning edit-nurse-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;">Edit</button>
+                        <button class="btn btn-danger delete-nurse-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;">Hapus</button>
                     </div>`;
                 nurseList.appendChild(li);
             });
@@ -1222,23 +1296,109 @@
             if (docSnap.exists()) {
                 const nurse = docSnap.data();
                 document.getElementById('nurse-detail-name').textContent = `Detail Perawat: ${nurse.name}`;
-                nurseInfoDisplay.innerHTML = `
+                
+                const infoContainer = document.getElementById('nurse-info-display');
+                infoContainer.innerHTML = `
                     <p><strong>Nama:</strong> ${nurse.name}</p>
                     <p><strong>Tanggal Lahir:</strong> ${nurse.dob}</p>
                     <p><strong>ID Perawat:</strong> ${nurse.nurseId}</p>
                     <p><strong>Nomor Registrasi:</strong> ${nurse.regNumber}</p>
                     <p><strong>Wilayah Kunjungan:</strong><br>${(nurse.visitArea || '-').replace(/\n/g, '<br>')}</p>
                 `;
+
+                const photoContainer = document.getElementById('nurse-photo-container');
+                const photoEl = document.getElementById('nurse-detail-photo');
+                if (nurse.photoURL) {
+                    photoEl.src = nurse.photoURL;
+                    photoContainer.style.display = 'block';
+                } else {
+                    photoContainer.style.display = 'none';
+                }
+
                 nurseListView.style.display = 'none';
                 nurseDetailView.style.display = 'block';
             }
         };
 
-        nurseList.addEventListener('click', (e) => {
-            if (e.target.classList.contains('view-nurse-detail-btn')) {
-                const nurseId = e.target.dataset.id;
+        nurseList.addEventListener('click', async (e) => {
+            const target = e.target;
+            const nurseId = target.dataset.id;
+            if (!nurseId) return;
+
+            if (target.classList.contains('view-nurse-detail-btn')) {
                 displayNurseDetails(nurseId);
             }
+
+            if (target.classList.contains('edit-nurse-btn')) {
+                if (authenticateAdmin('mengedit')) {
+                    const docRef = doc(db, "nurses", nurseId);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const nurse = docSnap.data();
+                        document.getElementById('edit-nurse-id').value = nurseId;
+                        document.getElementById('edit-nurse-name').value = nurse.name;
+                        document.getElementById('edit-nurse-dob').value = nurse.dob;
+                        document.getElementById('edit-nurse-id-field').value = nurse.nurseId;
+                        document.getElementById('edit-nurse-reg-number').value = nurse.regNumber;
+                        document.getElementById('edit-nurse-visit-area').value = nurse.visitArea;
+                        editNurseModal.style.display = 'block';
+                    }
+                }
+            }
+
+            if (target.classList.contains('delete-nurse-btn')) {
+                if (authenticateAdmin('menghapus')) {
+                    try {
+                        await deleteDoc(doc(db, "nurses", nurseId));
+                        alert('Data perawat berhasil dihapus.');
+                    } catch (error) {
+                        console.error("Error deleting nurse: ", error);
+                        alert('Gagal menghapus data perawat.');
+                    }
+                }
+            }
+        });
+        
+        editNurseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nurseId = document.getElementById('edit-nurse-id').value;
+            const nurseRef = doc(db, "nurses", nurseId);
+
+            const photoFile = document.getElementById('edit-nurse-photo').files[0];
+            let photoURL;
+
+            if (photoFile) {
+                 if (photoFile.size > 1048576) {
+                    alert('Ukuran foto terlalu besar! Maksimal 1MB.');
+                    return;
+                }
+                photoURL = await toBase64(photoFile);
+            }
+
+            const dataToUpdate = {
+                name: document.getElementById('edit-nurse-name').value,
+                dob: document.getElementById('edit-nurse-dob').value,
+                nurseId: document.getElementById('edit-nurse-id-field').value,
+                regNumber: document.getElementById('edit-nurse-reg-number').value,
+                visitArea: document.getElementById('edit-nurse-visit-area').value,
+            };
+
+            if (photoURL) {
+                dataToUpdate.photoURL = photoURL;
+            }
+
+            try {
+                await updateDoc(nurseRef, dataToUpdate);
+                alert('Data perawat berhasil diperbarui!');
+                editNurseModal.style.display = 'none';
+            } catch (error) {
+                console.error("Error updating nurse data: ", error);
+                alert('Gagal memperbarui data perawat.');
+            }
+        });
+
+        closeNurseModalBtn.addEventListener('click', () => {
+            editNurseModal.style.display = 'none';
         });
         
         backToNursesBtn.addEventListener('click', () => {
