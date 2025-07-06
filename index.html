@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekam Medis Home Care (Fitur Lengkap)</title>
+    <!-- NEW: Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* General Body and Container Styling */
         body { 
@@ -39,6 +41,19 @@
             border-radius: 8px; 
             padding: 20px; 
             margin-bottom: 20px; 
+        }
+
+        /* NEW: Chart Container Styling */
+        #charts-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .chart-wrapper {
+            width: 100%;
+            max-width: 250px;
+            text-align: center;
         }
 
         /* Form Elements */
@@ -194,6 +209,18 @@
         <div id="patient-management-section">
             <h1>Rekam Medis Perawat Home Care</h1>
 
+            <!-- NEW: Charts Section -->
+            <div id="charts-container" class="card">
+                <div class="chart-wrapper">
+                    <h4>Total Pasien</h4>
+                    <canvas id="total-patients-chart"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h4>Pasien per Jenis Kelamin</h4>
+                    <canvas id="gender-chart"></canvas>
+                </div>
+            </div>
+
             <button id="show-add-patient-btn" class="btn btn-primary" style="margin-bottom: 20px;">Tambah Pasien Baru</button>
 
             <div id="add-patient-card" class="card" style="display: none;">
@@ -204,7 +231,6 @@
                     <label for="patient-name">Nama Pasien:</label><input type="text" id="patient-name" required>
                     <label for="patient-dob">Tanggal Lahir:</label><input type="date" id="patient-dob" required>
                     
-                    <!-- NEW: Gender Field -->
                     <label for="patient-gender">Jenis Kelamin:</label>
                     <select id="patient-gender" required>
                         <option value="">Pilih Jenis Kelamin</option>
@@ -215,7 +241,6 @@
                     <label for="patient-address">Alamat:</label><textarea id="patient-address" rows="3" required></textarea>
                     <label for="patient-allergies">Riwayat Alergi:</label><textarea id="patient-allergies" rows="3" placeholder="Contoh: Paracetamol, Udang, Debu"></textarea>
                     
-                    <!-- NEW: Initial Assessment Fields -->
                     <label for="patient-initial-assessment">Asesmen Awal:</label>
                     <textarea id="patient-initial-assessment" rows="4" placeholder="Masukkan hasil asesmen awal"></textarea>
                     <label for="patient-assessing-nurse">Nama Perawat (Asesmen):</label>
@@ -315,7 +340,6 @@
                 <label for="edit-patient-name">Nama Pasien:</label><input type="text" id="edit-patient-name" required>
                 <label for="edit-patient-dob">Tanggal Lahir:</label><input type="date" id="edit-patient-dob" required>
                 
-                <!-- NEW: Edit Gender Field -->
                 <label for="edit-patient-gender">Jenis Kelamin:</label>
                 <select id="edit-patient-gender" required>
                     <option value="">Pilih Jenis Kelamin</option>
@@ -326,7 +350,6 @@
                 <label for="edit-patient-address">Alamat:</label><textarea id="edit-patient-address" rows="3" required></textarea>
                 <label for="edit-patient-allergies">Riwayat Alergi:</label><textarea id="edit-patient-allergies" rows="3"></textarea>
                 
-                <!-- NEW: Edit Initial Assessment Fields -->
                 <label for="edit-patient-initial-assessment">Asesmen Awal:</label>
                 <textarea id="edit-patient-initial-assessment" rows="4"></textarea>
                 <label for="edit-patient-assessing-nurse">Nama Perawat (Asesmen):</label>
@@ -395,6 +418,8 @@
         let currentPatientId = null;
         let currentPatientName = '';
         let allPatients = [];
+        let totalPatientsChartInstance;
+        let genderChartInstance;
 
         // --- Navigation Logic ---
         const showSection = (sectionName) => {
@@ -507,6 +532,7 @@
                 });
                 allPatients = docs;
                 renderPatientList();
+                updateDashboardCharts(allPatients.map(doc => doc.data()));
             }, (error) => {
                 console.error("Error listening for patient documents: ", error);
             });
@@ -569,7 +595,7 @@
                         <p><strong>Alamat:</strong> ${patient.address}</p>
                         <p><strong>Alergi:</strong> ${patient.allergies || 'Tidak ada data'}</p> 
                         <hr>
-                        <p><strong>Asesmen Awal:</strong><br>${patient.initial_assessment || 'Tidak ada data'}</p>
+                        <p><strong>Asesmen Awal:</strong><br>${(patient.initial_assessment || 'Tidak ada data').replace(/\n/g, '<br>')}</p>
                         <p><strong>Diasesmen oleh:</strong> ${patient.assessing_nurse || 'Tidak ada data'}</p>
                     `;
                 } else {
@@ -844,6 +870,97 @@
                 console.error("Error in medicalRecords snapshot listener: ", error);
             });
         };
+
+        // --- Dashboard Charts ---
+        // FIX: Added a plugin to display text in the center of the doughnut chart.
+        const doughnutText = {
+            id: 'doughnutText',
+            afterDraw(chart, args, options) {
+                const { ctx, data } = chart;
+                const text = data.datasets[0].data[0];
+                if (text === undefined) return;
+
+                ctx.save();
+                const x = chart.getDatasetMeta(0).data[0].x;
+                const y = chart.getDatasetMeta(0).data[0].y;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = 'bold 30px sans-serif';
+                ctx.fillStyle = '#007bff';
+                ctx.fillText(text, x, y);
+                ctx.restore();
+            }
+        };
+
+        const updateDashboardCharts = (patientsData) => {
+            if (totalPatientsChartInstance) {
+                totalPatientsChartInstance.destroy();
+            }
+            if (genderChartInstance) {
+                genderChartInstance.destroy();
+            }
+
+            // 1. Total Patients Chart (Doughnut)
+            const totalCtx = document.getElementById('total-patients-chart').getContext('2d');
+            totalPatientsChartInstance = new Chart(totalCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Total Pasien'],
+                    datasets: [{
+                        data: [patientsData.length],
+                        backgroundColor: ['#007bff'],
+                        hoverBackgroundColor: ['#0056b3'],
+                        borderColor: ['#ffffff'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    cutout: '70%'
+                },
+                // FIX: Register the custom plugin to display the number.
+                plugins: [doughnutText]
+            });
+
+            // 2. Gender Chart (Pie)
+            const genderCounts = { 'Laki-laki': 0, 'Perempuan': 0, 'Lainnya': 0 };
+            patientsData.forEach(patient => {
+                if (patient.gender === 'Laki-laki') {
+                    genderCounts['Laki-laki']++;
+                } else if (patient.gender === 'Perempuan') {
+                    genderCounts['Perempuan']++;
+                } else {
+                    genderCounts['Lainnya']++;
+                }
+            });
+
+            const genderCtx = document.getElementById('gender-chart').getContext('2d');
+            genderChartInstance = new Chart(genderCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Laki-laki', 'Perempuan', 'Belum Diisi'],
+                    datasets: [{
+                        data: [genderCounts['Laki-laki'], genderCounts['Perempuan'], genderCounts['Lainnya']],
+                        backgroundColor: ['#007bff', '#e83e8c', '#6c757d'],
+                        borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    }
+                }
+            });
+        };
+
 
         // --- Initial Load ---
         setInitialMedicalRecordNumber();
