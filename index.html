@@ -21,9 +21,10 @@
             width: 100%; 
             max-width: 800px; 
             margin: 20px auto;
+            box-sizing: border-box;
         }
 
-        /* NEW: Navigation Bar Styling */
+        /* Responsive Navigation Bar Styling */
         nav {
             background-color: #007bff;
             padding: 10px 20px;
@@ -39,7 +40,6 @@
             max-width: 1200px;
             margin: 0 auto;
         }
-        /* NEW: Brand (Logo + Title) Styling */
         .nav-brand {
             display: flex;
             align-items: center;
@@ -76,6 +76,50 @@
             background-color: white;
             color: #007bff;
             border-color: white;
+        }
+        
+        /* Hamburger Menu for Mobile */
+        #hamburger-btn {
+            display: none; /* Hidden by default */
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        /* Mobile & Tablet Styles */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 250px;
+                background-color: #343a40;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 60px 20px 20px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                z-index: 1000;
+            }
+            .nav-links.is-open {
+                transform: translateX(0);
+            }
+            .nav-btn {
+                width: 100%;
+                text-align: left;
+            }
+            #hamburger-btn {
+                display: block; /* Show on mobile */
+            }
+            .nav-brand {
+                flex-grow: 1; /* Allow brand to take space */
+            }
+            .nav-container {
+                justify-content: flex-start; /* Adjust alignment */
+            }
         }
 
         /* Typography */
@@ -255,15 +299,14 @@
     </style>
 </head>
 <body>
-    <!-- NEW: Navigation Bar -->
     <nav>
         <div class="nav-container">
-            <!-- NEW: Brand container for logo and title -->
+            <button id="hamburger-btn">☰</button>
             <div class="nav-brand">
                 <img src="https://github.com/Aponk04/logilivecare/blob/main/logolifecare1.gif?raw=true" alt="Logo Lifecare" class="nav-logo">
                 <span class="nav-title">PUSAT DATA LIFE CARE</span>
             </div>
-            <div class="nav-links">
+            <div id="nav-links-container" class="nav-links">
                 <button id="nav-patients" class="nav-btn active">DATA PASIEN</button>
                 <button id="nav-nurses" class="nav-btn">DATA PERAWAT</button>
                 <button id="nav-admin" class="nav-btn">ADMINISTRASI</button>
@@ -498,11 +541,13 @@
             nurses: document.getElementById('main-nurses-section'),
             admin: document.getElementById('main-admin-section')
         };
+        const navLinksContainer = document.getElementById('nav-links-container');
         const navButtons = {
             patients: document.getElementById('nav-patients'),
             nurses: document.getElementById('nav-nurses'),
             admin: document.getElementById('nav-admin')
         };
+        const hamburgerBtn = document.getElementById('hamburger-btn');
 
         const patientList = document.getElementById('patient-list');
         const addPatientForm = document.getElementById('add-patient-form');
@@ -541,6 +586,10 @@
         let genderChartInstance;
 
         // --- Navigation Logic ---
+        hamburgerBtn.addEventListener('click', () => {
+            navLinksContainer.classList.toggle('is-open');
+        });
+
         const handleNavigation = (targetSection) => {
             Object.values(mainSections).forEach(section => section.style.display = 'none');
             mainSections[targetSection].style.display = 'block';
@@ -550,6 +599,10 @@
 
             if (targetSection !== 'patients') {
                  showSubSection('management');
+            }
+            // Close side nav on mobile after clicking a link
+            if (navLinksContainer.classList.contains('is-open')) {
+                navLinksContainer.classList.remove('is-open');
             }
         };
 
