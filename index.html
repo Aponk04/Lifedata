@@ -384,7 +384,6 @@
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <h3 style="text-align: left; margin: 0;">Informasi Pasien</h3>
-                        <!-- MODIFIED: Container for patient action buttons -->
                         <div class="list-item-actions">
                              <button id="edit-patient-btn" class="btn btn-warning" style="width: auto; padding: 8px 15px;">Edit Data</button>
                              <button id="delete-patient-btn" class="btn btn-danger" style="width: auto; padding: 8px 15px;">Hapus Data</button>
@@ -493,11 +492,11 @@
 
         <!-- NEW: Section for Administration -->
         <main id="main-admin-section" style="display: none;">
-            <h1>ADMINISTRASI</h1>
+            <h1>Administrasi</h1>
             <div class="card">
                 <h2>Daftar Persuratan</h2>
                 <ul id="admin-list">
-                    <li><a href="#" class="admin-link">Surat Persetujuan Tindakan</a></li>
+                    <li><a href="https://aponk04.github.io/ic/" target="_blank" rel="noopener noreferrer" class="admin-link">Surat Persetujuan Tindakan</a></li>
                     <li><a href="#" class="admin-link">SOP (Standard Operating Procedure)</a></li>
                     <li><a href="#" class="admin-link">Surat Kontrak Kerja Sama</a></li>
                 </ul>
@@ -613,7 +612,7 @@
         const showAddPatientBtn = document.getElementById('show-add-patient-btn');
         const addPatientCard = document.getElementById('add-patient-card');
         const cancelAddPatientBtn = document.getElementById('cancel-add-patient-btn');
-        const deletePatientBtn = document.getElementById('delete-patient-btn'); // NEW
+        const deletePatientBtn = document.getElementById('delete-patient-btn');
 
         const nurseListView = document.getElementById('nurse-list-view');
         const nurseDetailView = document.getElementById('nurse-detail-view');
