@@ -297,7 +297,7 @@
         .patient-info-display, .nurse-info-display { padding: 15px; background-color: #e9ecef; border-radius: 5px; }
         .patient-info-display p, .nurse-info-display p { margin: 8px 0; }
 
-        /* NEW: Nurse Detail Layout */
+        /* Nurse Detail Layout */
         #nurse-detail-content {
             display: flex;
             flex-wrap: wrap;
@@ -384,7 +384,11 @@
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <h3 style="text-align: left; margin: 0;">Informasi Pasien</h3>
-                        <button id="edit-patient-btn" class="btn btn-primary" style="width: auto; padding: 8px 15px;">Edit Data</button>
+                        <!-- MODIFIED: Container for patient action buttons -->
+                        <div class="list-item-actions">
+                             <button id="edit-patient-btn" class="btn btn-warning" style="width: auto; padding: 8px 15px;">Edit Data</button>
+                             <button id="delete-patient-btn" class="btn btn-danger" style="width: auto; padding: 8px 15px;">Hapus Data</button>
+                        </div>
                     </div>
                     <div id="patient-info-display" class="patient-info-display"></div>
                 </div>
@@ -479,13 +483,17 @@
                         <img id="nurse-detail-photo" src="" alt="Foto Perawat">
                     </div>
                 </div>
-                <button id="back-to-nurses-btn" class="btn btn-secondary" style="margin-top: 20px;">Kembali ke Daftar Perawat</button>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="edit-nurse-detail-btn" class="btn btn-warning" style="width: 25%;">Edit</button>
+                    <button id="delete-nurse-detail-btn" class="btn btn-danger" style="width: 25%;">Hapus</button>
+                </div>
+                <button id="back-to-nurses-btn" class="btn btn-secondary" style="margin-top: 10px;">Kembali ke Daftar Perawat</button>
             </div>
         </main>
 
         <!-- NEW: Section for Administration -->
         <main id="main-admin-section" style="display: none;">
-            <h1>Administrasi</h1>
+            <h1>ADMINISTRASI</h1>
             <div class="card">
                 <h2>Daftar Persuratan</h2>
                 <ul id="admin-list">
@@ -536,7 +544,6 @@
             </form>
         </div>
     </div>
-    <!-- NEW: Edit Nurse Modal -->
     <div id="edit-nurse-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="close-nurse-modal-btn">&times;</span>
@@ -606,6 +613,7 @@
         const showAddPatientBtn = document.getElementById('show-add-patient-btn');
         const addPatientCard = document.getElementById('add-patient-card');
         const cancelAddPatientBtn = document.getElementById('cancel-add-patient-btn');
+        const deletePatientBtn = document.getElementById('delete-patient-btn'); // NEW
 
         const nurseListView = document.getElementById('nurse-list-view');
         const nurseDetailView = document.getElementById('nurse-detail-view');
@@ -617,7 +625,6 @@
         const nurseInfoDisplay = document.getElementById('nurse-info-display');
         const searchNurseInput = document.getElementById('search-nurse');
         const backToNursesBtn = document.getElementById('back-to-nurses-btn');
-        // NEW: Edit Nurse Modal References
         const editNurseModal = document.getElementById('edit-nurse-modal');
         const editNurseForm = document.getElementById('edit-nurse-form');
         const closeNurseModalBtn = document.getElementById('close-nurse-modal-btn');
@@ -625,10 +632,29 @@
 
         let currentPatientId = null;
         let currentPatientName = '';
+        let currentNurseId = null; 
         let allPatients = [];
         let allNurses = [];
         let totalPatientsChartInstance;
         let genderChartInstance;
+
+        // --- Authentication ---
+        const authenticateAdmin = (action) => {
+            if (!confirm(`Apakah anda memiliki ijin untuk ${action} data ini?`)) {
+                return false;
+            }
+            const username = prompt("Masukkan username:");
+            if (username !== "Aponk") {
+                alert("Username salah.");
+                return false;
+            }
+            const password = prompt("Masukkan password:");
+            if (password !== "2025") {
+                alert("Password salah.");
+                return false;
+            }
+            return true;
+        };
 
         // --- Navigation Logic ---
         hamburgerBtn.addEventListener('click', () => {
@@ -743,7 +769,6 @@
                     </div>
                     <div class="list-item-actions">
                         <button class="btn btn-primary" data-id="${doc.id}" data-name="${patient.name}" style="padding: 6px 12px;">Detail</button>
-                        <button class="btn btn-danger" data-id="${doc.id}" data-name="${patient.name}" style="padding: 6px 12px;">Hapus</button>
                     </div>`;
                 patientList.appendChild(li);
             });
@@ -784,12 +809,6 @@
                 displayDrugTherapies(patientId);
                 displayMedicalRecords(patientId);
                 showSubSection('detail');
-            }
-
-            if (target.classList.contains('btn-danger')) {
-                if (confirm(`Yakin ingin menghapus ${patientName} dan semua datanya?`)) {
-                    await deletePatientAndRecords(patientId);
-                }
             }
         });
 
@@ -839,19 +858,29 @@
         };
 
         document.getElementById('edit-patient-btn').addEventListener('click', async () => {
-            const docRef = doc(db, "patients", currentPatientId);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const patient = docSnap.data();
-                document.getElementById('edit-patient-rm').value = patient.rm_number || '';
-                document.getElementById('edit-patient-name').value = patient.name;
-                document.getElementById('edit-patient-dob').value = patient.dob;
-                document.getElementById('edit-patient-gender').value = patient.gender || '';
-                document.getElementById('edit-patient-address').value = patient.address;
-                document.getElementById('edit-patient-allergies').value = patient.allergies || ''; 
-                document.getElementById('edit-patient-initial-assessment').value = patient.initial_assessment || '';
-                document.getElementById('edit-patient-assessing-nurse').value = patient.assessing_nurse || '';
-                editPatientModal.style.display = 'block';
+            if (authenticateAdmin('mengedit')) {
+                const docRef = doc(db, "patients", currentPatientId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const patient = docSnap.data();
+                    document.getElementById('edit-patient-rm').value = patient.rm_number || '';
+                    document.getElementById('edit-patient-name').value = patient.name;
+                    document.getElementById('edit-patient-dob').value = patient.dob;
+                    document.getElementById('edit-patient-gender').value = patient.gender || '';
+                    document.getElementById('edit-patient-address').value = patient.address;
+                    document.getElementById('edit-patient-allergies').value = patient.allergies || ''; 
+                    document.getElementById('edit-patient-initial-assessment').value = patient.initial_assessment || '';
+                    document.getElementById('edit-patient-assessing-nurse').value = patient.assessing_nurse || '';
+                    editPatientModal.style.display = 'block';
+                }
+            }
+        });
+
+        deletePatientBtn.addEventListener('click', async () => {
+            if (authenticateAdmin('menghapus')) {
+                if (confirm(`Yakin ingin menghapus ${currentPatientName} dan semua datanya?`)) {
+                    await deletePatientAndRecords(currentPatientId);
+                }
             }
         });
 
@@ -1190,23 +1219,6 @@
         };
 
         // --- NEW: Nurse Data Management ---
-        const authenticateAdmin = (action) => {
-            if (!confirm(`Apakah anda memiliki ijin untuk ${action} data ini?`)) {
-                return false;
-            }
-            const username = prompt("Masukkan username:");
-            if (username !== "Aponk") {
-                alert("Username salah.");
-                return false;
-            }
-            const password = prompt("Masukkan password:");
-            if (password !== "2025") {
-                alert("Password salah.");
-                return false;
-            }
-            return true;
-        };
-
         showAddNurseBtn.addEventListener('click', () => {
             addNurseCard.style.display = 'block';
             showAddNurseBtn.style.display = 'none';
@@ -1273,8 +1285,6 @@
                     </div>
                     <div class="list-item-actions">
                         <button class="btn btn-primary view-nurse-detail-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;">Detail</button>
-                        <button class="btn btn-warning edit-nurse-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;">Edit</button>
-                        <button class="btn btn-danger delete-nurse-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;">Hapus</button>
                     </div>`;
                 nurseList.appendChild(li);
             });
@@ -1320,22 +1330,24 @@
             }
         };
 
-        nurseList.addEventListener('click', async (e) => {
-            const target = e.target;
-            const nurseId = target.dataset.id;
-            if (!nurseId) return;
-
-            if (target.classList.contains('view-nurse-detail-btn')) {
-                displayNurseDetails(nurseId);
+        nurseList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('view-nurse-detail-btn')) {
+                currentNurseId = e.target.dataset.id; // Set current nurse ID
+                displayNurseDetails(currentNurseId);
             }
+        });
 
-            if (target.classList.contains('edit-nurse-btn')) {
-                if (authenticateAdmin('mengedit')) {
-                    const docRef = doc(db, "nurses", nurseId);
+        document.getElementById('nurse-detail-view').addEventListener('click', async (e) => {
+            const target = e.target;
+            if (!currentNurseId) return;
+
+            if (target.id === 'edit-nurse-detail-btn') {
+                 if (authenticateAdmin('mengedit')) {
+                    const docRef = doc(db, "nurses", currentNurseId);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         const nurse = docSnap.data();
-                        document.getElementById('edit-nurse-id').value = nurseId;
+                        document.getElementById('edit-nurse-id').value = currentNurseId;
                         document.getElementById('edit-nurse-name').value = nurse.name;
                         document.getElementById('edit-nurse-dob').value = nurse.dob;
                         document.getElementById('edit-nurse-id-field').value = nurse.nurseId;
@@ -1346,11 +1358,12 @@
                 }
             }
 
-            if (target.classList.contains('delete-nurse-btn')) {
+            if (target.id === 'delete-nurse-detail-btn') {
                 if (authenticateAdmin('menghapus')) {
                     try {
-                        await deleteDoc(doc(db, "nurses", nurseId));
+                        await deleteDoc(doc(db, "nurses", currentNurseId));
                         alert('Data perawat berhasil dihapus.');
+                        backToNursesBtn.click(); // Return to list view
                     } catch (error) {
                         console.error("Error deleting nurse: ", error);
                         alert('Gagal menghapus data perawat.');
@@ -1391,6 +1404,7 @@
                 await updateDoc(nurseRef, dataToUpdate);
                 alert('Data perawat berhasil diperbarui!');
                 editNurseModal.style.display = 'none';
+                displayNurseDetails(nurseId); // Refresh details
             } catch (error) {
                 console.error("Error updating nurse data: ", error);
                 alert('Gagal memperbarui data perawat.');
@@ -1404,6 +1418,7 @@
         backToNursesBtn.addEventListener('click', () => {
             nurseListView.style.display = 'block';
             nurseDetailView.style.display = 'none';
+            currentNurseId = null; // Clear selected nurse
         });
 
 
