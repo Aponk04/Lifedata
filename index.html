@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekam Medis Home Care (Fitur Lengkap)</title>
-    <!-- NEW: Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* General Body and Container Styling */
@@ -12,11 +11,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #f4f7f6; 
             margin: 0; 
-            padding: 20px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; 
-            min-height: 100vh; 
+            padding: 0; 
         }
         .container { 
             background-color: #ffffff; 
@@ -25,6 +20,62 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
             width: 100%; 
             max-width: 800px; 
+            margin: 20px auto;
+        }
+
+        /* NEW: Navigation Bar Styling */
+        nav {
+            background-color: #007bff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        /* NEW: Brand (Logo + Title) Styling */
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .nav-logo {
+            height: 40px;
+        }
+        .nav-title {
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            font-style: italic;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-btn {
+            background-color: transparent;
+            color: white;
+            border: 2px solid transparent;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .nav-btn.active {
+            background-color: white;
+            color: #007bff;
+            border-color: white;
         }
 
         /* Typography */
@@ -43,7 +94,7 @@
             margin-bottom: 20px; 
         }
 
-        /* NEW: Chart Container Styling */
+        /* Chart Container Styling */
         #charts-container {
             display: flex;
             justify-content: space-around;
@@ -116,7 +167,7 @@
             list-style: none; 
             padding: 0; 
         }
-        #patient-list li, #drug-therapy-list li { 
+        #patient-list li, #drug-therapy-list li, #nurse-list li, #admin-list li { 
             background-color: #f8f9fa; 
             border: 1px solid #dee2e6; 
             padding: 15px; 
@@ -127,7 +178,7 @@
             align-items: center; 
             transition: background-color 0.3s, border-left 0.3s; 
         }
-        #patient-list li:hover, #drug-therapy-list li:not(.therapy-stopped):hover { 
+        #patient-list li:hover, #drug-therapy-list li:not(.therapy-stopped):hover, #nurse-list li:hover { 
             background-color: #e9ecef; 
         }
         .list-item-info { 
@@ -145,8 +196,8 @@
 
         /* Style for stopped therapy */
         #drug-therapy-list li.therapy-stopped {
-            background-color: #e6e0f8; /* Light purple */
-            border-left: 5px solid #6f42c1; /* Darker purple */
+            background-color: #e6e0f8;
+            border-left: 5px solid #6f42c1;
         }
         #drug-therapy-list li.therapy-stopped .list-item-info {
             text-decoration: line-through;
@@ -166,7 +217,7 @@
         .list-header h2 { 
             margin: 0; 
         }
-        #search-patient { 
+        #search-patient, #search-nurse { 
             padding: 8px 12px; 
             font-size: 15px; 
             width: 100%;
@@ -204,133 +255,183 @@
     </style>
 </head>
 <body>
+    <!-- NEW: Navigation Bar -->
+    <nav>
+        <div class="nav-container">
+            <!-- NEW: Brand container for logo and title -->
+            <div class="nav-brand">
+                <img src="https://github.com/Aponk04/Lifedata/blob/main/logolifecare1.gif?raw=true" alt="Logo Lifecare" class="nav-logo">
+                <span class="nav-title">PUSAT DATA LIFE CARE</span>
+            </div>
+            <div class="nav-links">
+                <button id="nav-patients" class="nav-btn active">DATA PASIEN</button>
+                <button id="nav-nurses" class="nav-btn">DATA PERAWAT</button>
+                <button id="nav-admin" class="nav-btn">ADMINISTRASI</button>
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
-        <!-- SECTION 1: Patient List -->
-        <div id="patient-management-section">
-            <h1>Rekam Medis Perawat Home Care</h1>
-
-            <!-- NEW: Charts Section -->
-            <div id="charts-container" class="card">
-                <div class="chart-wrapper">
-                    <h4>Total Pasien</h4>
-                    <canvas id="total-patients-chart"></canvas>
-                </div>
-                <div class="chart-wrapper">
-                    <h4>Pasien per Jenis Kelamin</h4>
-                    <canvas id="gender-chart"></canvas>
-                </div>
-            </div>
-
-            <button id="show-add-patient-btn" class="btn btn-primary" style="margin-bottom: 20px;">Tambah Pasien Baru</button>
-
-            <div id="add-patient-card" class="card" style="display: none;">
-                <h2>Tambah Pasien Baru</h2>
-                <form id="add-patient-form">
-                    <label for="patient-rm">No. Rekam Medik:</label>
-                    <input type="text" id="patient-rm" readonly>
-                    <label for="patient-name">Nama Pasien:</label><input type="text" id="patient-name" required>
-                    <label for="patient-dob">Tanggal Lahir:</label><input type="date" id="patient-dob" required>
-                    
-                    <label for="patient-gender">Jenis Kelamin:</label>
-                    <select id="patient-gender" required>
-                        <option value="">Pilih Jenis Kelamin</option>
-                        <option value="Laki-laki">Laki-laki</option>
-                        <option value="Perempuan">Perempuan</option>
-                    </select>
-
-                    <label for="patient-address">Alamat:</label><textarea id="patient-address" rows="3" required></textarea>
-                    <label for="patient-allergies">Riwayat Alergi:</label><textarea id="patient-allergies" rows="3" placeholder="Contoh: Paracetamol, Udang, Debu"></textarea>
-                    
-                    <label for="patient-initial-assessment">Asesmen Awal:</label>
-                    <textarea id="patient-initial-assessment" rows="4" placeholder="Masukkan hasil asesmen awal"></textarea>
-                    <label for="patient-assessing-nurse">Nama Perawat (Asesmen):</label>
-                    <input type="text" id="patient-assessing-nurse" placeholder="Nama perawat yang melakukan asesmen">
-
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button type="submit" class="btn btn-success" style="margin-top: 0;">Simpan Pasien</button>
-                        <button type="button" id="cancel-add-patient-btn" class="btn btn-secondary" style="margin-top: 0;">Batal</button>
+        <!-- SECTION 1: Patient Data (Main Section) -->
+        <main id="main-patients-section">
+            <div id="patient-management-section">
+                <h1>Rekam Medis Perawat Home Care</h1>
+                <div id="charts-container" class="card">
+                    <div class="chart-wrapper">
+                        <h4>Total Pasien</h4>
+                        <canvas id="total-patients-chart"></canvas>
                     </div>
-                </form>
-            </div>
-
-            <div class="card">
-                <div class="list-header">
-                    <h2>Daftar Pasien</h2>
-                    <input type="text" id="search-patient" placeholder="Cari nama atau No. RM...">
+                    <div class="chart-wrapper">
+                        <h4>Pasien per Jenis Kelamin</h4>
+                        <canvas id="gender-chart"></canvas>
+                    </div>
                 </div>
-                <ul id="patient-list"><li>Memuat daftar pasien...</li></ul>
-            </div>
-        </div>
-
-        <!-- SECTION 2: Patient Detail -->
-        <div id="patient-detail-section" style="display: none;">
-            <h2 style="margin-bottom: 10px;">Detail Pasien</h2>
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="text-align: left; margin: 0;">Informasi Pasien</h3>
-                    <button id="edit-patient-btn" class="btn btn-primary" style="width: auto; padding: 8px 15px;">Edit Data</button>
+                <button id="show-add-patient-btn" class="btn btn-primary" style="margin-bottom: 20px;">Tambah Pasien Baru</button>
+                <div id="add-patient-card" class="card" style="display: none;">
+                    <h2>Tambah Pasien Baru</h2>
+                    <form id="add-patient-form">
+                        <label for="patient-rm">No. Rekam Medik:</label>
+                        <input type="text" id="patient-rm" readonly>
+                        <label for="patient-name">Nama Pasien:</label><input type="text" id="patient-name" required>
+                        <label for="patient-dob">Tanggal Lahir:</label><input type="date" id="patient-dob" required>
+                        <label for="patient-gender">Jenis Kelamin:</label>
+                        <select id="patient-gender" required>
+                            <option value="">Pilih Jenis Kelamin</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                        <label for="patient-address">Alamat:</label><textarea id="patient-address" rows="3" required></textarea>
+                        <label for="patient-allergies">Riwayat Alergi:</label><textarea id="patient-allergies" rows="3" placeholder="Contoh: Paracetamol, Udang, Debu"></textarea>
+                        <label for="patient-initial-assessment">Asesmen Awal:</label>
+                        <textarea id="patient-initial-assessment" rows="4" placeholder="Masukkan hasil asesmen awal"></textarea>
+                        <label for="patient-assessing-nurse">Nama Perawat (Asesmen):</label>
+                        <input type="text" id="patient-assessing-nurse" placeholder="Nama perawat yang melakukan asesmen">
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button type="submit" class="btn btn-success" style="margin-top: 0;">Simpan Pasien</button>
+                            <button type="button" id="cancel-add-patient-btn" class="btn btn-secondary" style="margin-top: 0;">Batal</button>
+                        </div>
+                    </form>
                 </div>
-                <div id="patient-info-display" class="patient-info-display"></div>
-            </div>
-            <div class="card">
-                <h3>Daftar Terapi Obat</h3>
-                <form id="add-drug-therapy-form">
-                    <div class="form-grid">
-                        <div><label for="drug-name">Nama Obat:</label><input type="text" id="drug-name" required></div>
-                        <div><label for="drug-dosage">Dosis:</label><input type="text" id="drug-dosage" placeholder="Contoh: 500 mg"></div>
-                        <div><label for="drug-frequency">Frekuensi:</label><input type="text" id="drug-frequency" placeholder="Contoh: 3x sehari"></div>
-                        <div><label for="drug-route">Rute Pemberian:</label><input type="text" id="drug-route" placeholder="Contoh: Oral"></div>
+                <div class="card">
+                    <div class="list-header">
+                        <h2>Daftar Pasien</h2>
+                        <input type="text" id="search-patient" placeholder="Cari nama atau No. RM...">
                     </div>
-                    <button type="submit" class="btn btn-success">Tambah Terapi</button>
-                </form>
-                <h4 style="margin-top: 30px; text-align: left; padding-left: 5px;">Terapi Aktif:</h4>
-                <ul id="drug-therapy-list"></ul>
+                    <ul id="patient-list"><li>Memuat daftar pasien...</li></ul>
+                </div>
             </div>
-            <button id="view-visits-btn" class="btn btn-primary">Lihat & Tambah Riwayat Kunjungan</button>
-            <button id="back-to-patients-from-detail" class="btn btn-secondary" style="margin-top: 10px;">Kembali ke Daftar Pasien</button>
-        </div>
+            <div id="patient-detail-section" style="display: none;">
+                <h2 style="margin-bottom: 10px;">Detail Pasien</h2>
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="text-align: left; margin: 0;">Informasi Pasien</h3>
+                        <button id="edit-patient-btn" class="btn btn-primary" style="width: auto; padding: 8px 15px;">Edit Data</button>
+                    </div>
+                    <div id="patient-info-display" class="patient-info-display"></div>
+                </div>
+                <div class="card">
+                    <h3>Daftar Terapi Obat</h3>
+                    <form id="add-drug-therapy-form">
+                        <div class="form-grid">
+                            <div><label for="drug-name">Nama Obat:</label><input type="text" id="drug-name" required></div>
+                            <div><label for="drug-dosage">Dosis:</label><input type="text" id="drug-dosage" placeholder="Contoh: 500 mg"></div>
+                            <div><label for="drug-frequency">Frekuensi:</label><input type="text" id="drug-frequency" placeholder="Contoh: 3x sehari"></div>
+                            <div><label for="drug-route">Rute Pemberian:</label><input type="text" id="drug-route" placeholder="Contoh: Oral"></div>
+                        </div>
+                        <button type="submit" class="btn btn-success">Tambah Terapi</button>
+                    </form>
+                    <h4 style="margin-top: 30px; text-align: left; padding-left: 5px;">Terapi Aktif:</h4>
+                    <ul id="drug-therapy-list"></ul>
+                </div>
+                <button id="view-visits-btn" class="btn btn-primary">Lihat & Tambah Riwayat Kunjungan</button>
+                <button id="back-to-patients-from-detail" class="btn btn-secondary" style="margin-top: 10px;">Kembali ke Daftar Pasien</button>
+            </div>
+            <div id="visit-history-section" style="display: none;">
+                <h2>Riwayat Kunjungan: <span id="visit-patient-name"></span></h2>
+                <div class="card">
+                    <h3>Tambah Catatan Kunjungan Baru</h3>
+                    <form id="add-medical-record-form">
+                        <div class="form-grid">
+                            <div><label for="visit-date">Tanggal:</label><input type="date" id="visit-date" required></div>
+                            <div><label for="visit-time">Jam:</label><input type="time" id="visit-time" required></div>
+                        </div>
+                        <hr><h4>TTV</h4>
+                        <div class="form-grid">
+                            <div><label>Tek. Darah:</label><input type="text" id="blood-pressure" placeholder="120/80"></div>
+                            <div><label>Suhu:</label><input type="number" step="0.1" id="temperature" placeholder="36.5"></div>
+                            <div><label>Nadi:</label><input type="number" id="pulse" placeholder="80"></div>
+                            <div><label>Pernapasan:</label><input type="number" id="respiration" placeholder="20"></div>
+                        </div>
+                        <hr><h4>SOAP</h4>
+                        <label><strong>S:</strong></label><textarea id="soap-s" rows="3" required></textarea>
+                        <label><strong>O:</strong></label><textarea id="soap-o" rows="4" required></textarea>
+                        <label><strong>A:</strong></label><textarea id="soap-a" rows="3" required></textarea>
+                        <label><strong>P:</strong></label><textarea id="soap-p" rows="4" required></textarea>
+                        <hr>
+                        <label><strong>Foto Dokumentasi (Max 1MB):</strong></label><input type="file" id="visit-photo" accept="image/*">
+                        <label>Catatan Pemberian Obat Saat Kunjungan:</label><textarea id="medication-notes" rows="3"></textarea>
+                        <label for="visiting-nurse-name">Nama Perawat:</label>
+                        <input type="text" id="visiting-nurse-name" placeholder="Masukkan nama perawat yang berkunjung">
+                        <button type="submit" class="btn btn-success">Simpan Kunjungan</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h3>Daftar Kunjungan Terdahulu</h3>
+                    <ul id="medical-record-list"></ul>
+                </div>
+                <button id="back-to-detail-btn" class="btn btn-secondary">Kembali ke Detail Pasien</button>
+            </div>
+        </main>
 
-        <!-- SECTION 3: Visit History -->
-        <div id="visit-history-section" style="display: none;">
-            <h2>Riwayat Kunjungan: <span id="visit-patient-name"></span></h2>
-            <div class="card">
-                <h3>Tambah Catatan Kunjungan Baru</h3>
-                <form id="add-medical-record-form">
-                    <div class="form-grid">
-                        <div><label for="visit-date">Tanggal:</label><input type="date" id="visit-date" required></div>
-                        <div><label for="visit-time">Jam:</label><input type="time" id="visit-time" required></div>
+        <!-- NEW: Section for Nurse Data -->
+        <main id="main-nurses-section" style="display: none;">
+            <h1>Data Perawat</h1>
+            <div id="nurse-list-view">
+                 <button id="show-add-nurse-btn" class="btn btn-primary" style="margin-bottom: 20px;">Tambah Perawat Baru</button>
+                 <div id="add-nurse-card" class="card" style="display: none;">
+                    <h2>Tambah Perawat Baru</h2>
+                    <form id="add-nurse-form">
+                        <label for="nurse-name">Nama Perawat:</label><input type="text" id="nurse-name" required>
+                        <label for="nurse-dob">Tanggal Lahir:</label><input type="date" id="nurse-dob" required>
+                        <label for="nurse-id">ID Perawat:</label><input type="text" id="nurse-id" required>
+                        <label for="nurse-reg-number">Nomor Registrasi:</label><input type="text" id="nurse-reg-number" required>
+                        <label for="nurse-visit-area">Wilayah Kunjungan:</label><textarea id="nurse-visit-area" rows="3"></textarea>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button type="submit" class="btn btn-success" style="margin-top: 0;">Simpan Perawat</button>
+                            <button type="button" id="cancel-add-nurse-btn" class="btn btn-secondary" style="margin-top: 0;">Batal</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card">
+                    <div class="list-header">
+                        <h2>Daftar Perawat</h2>
+                        <input type="text" id="search-nurse" placeholder="Cari nama perawat...">
                     </div>
-                    <hr><h4>TTV</h4>
-                    <div class="form-grid">
-                        <div><label>Tek. Darah:</label><input type="text" id="blood-pressure" placeholder="120/80"></div>
-                        <div><label>Suhu:</label><input type="number" step="0.1" id="temperature" placeholder="36.5"></div>
-                        <div><label>Nadi:</label><input type="number" id="pulse" placeholder="80"></div>
-                        <div><label>Pernapasan:</label><input type="number" id="respiration" placeholder="20"></div>
-                    </div>
-                    <hr><h4>SOAP</h4>
-                    <label><strong>S:</strong></label><textarea id="soap-s" rows="3" required></textarea>
-                    <label><strong>O:</strong></label><textarea id="soap-o" rows="4" required></textarea>
-                    <label><strong>A:</strong></label><textarea id="soap-a" rows="3" required></textarea>
-                    <label><strong>P:</strong></label><textarea id="soap-p" rows="4" required></textarea>
-                    <hr>
-                    <label><strong>Foto Dokumentasi (Max 1MB):</strong></label><input type="file" id="visit-photo" accept="image/*">
-                    <label>Catatan Pemberian Obat Saat Kunjungan:</label><textarea id="medication-notes" rows="3"></textarea>
-                    
-                    <label for="visiting-nurse-name">Nama Perawat:</label>
-                    <input type="text" id="visiting-nurse-name" placeholder="Masukkan nama perawat yang berkunjung">
+                    <ul id="nurse-list"></ul>
+                </div>
+            </div>
+            <div id="nurse-detail-view" style="display: none;">
+                <h2 id="nurse-detail-name"></h2>
+                <div id="nurse-info-display" class="patient-info-display"></div>
+                <button id="back-to-nurses-btn" class="btn btn-secondary" style="margin-top: 20px;">Kembali ke Daftar Perawat</button>
+            </div>
+        </main>
 
-                    <button type="submit" class="btn btn-success">Simpan Kunjungan</button>
-                </form>
-            </div>
+        <!-- NEW: Section for Administration -->
+        <main id="main-admin-section" style="display: none;">
+            <h1>Administrasi</h1>
             <div class="card">
-                <h3>Daftar Kunjungan Terdahulu</h3>
-                <ul id="medical-record-list"></ul>
+                <h2>Daftar Persuratan</h2>
+                <ul id="admin-list">
+                    <li><a href="#" class="admin-link">Surat Persetujuan Tindakan</a></li>
+                    <li><a href="#" class="admin-link">SOP (Standard Operating Procedure)</a></li>
+                    <li><a href="#" class="admin-link">Surat Kontrak Kerja Sama</a></li>
+                </ul>
             </div>
-            <button id="back-to-detail-btn" class="btn btn-secondary">Kembali ke Detail Pasien</button>
-        </div>
+        </main>
     </div>
 
-    <!-- Edit Patient Modal -->
+    <!-- FIX: Modals are now fully defined -->
     <div id="edit-patient-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="close-modal-btn">&times;</span>
@@ -339,28 +440,22 @@
                 <label for="edit-patient-rm">No. Rekam Medik:</label><input type="text" id="edit-patient-rm" readonly>
                 <label for="edit-patient-name">Nama Pasien:</label><input type="text" id="edit-patient-name" required>
                 <label for="edit-patient-dob">Tanggal Lahir:</label><input type="date" id="edit-patient-dob" required>
-                
                 <label for="edit-patient-gender">Jenis Kelamin:</label>
                 <select id="edit-patient-gender" required>
                     <option value="">Pilih Jenis Kelamin</option>
                     <option value="Laki-laki">Laki-laki</option>
                     <option value="Perempuan">Perempuan</option>
                 </select>
-
                 <label for="edit-patient-address">Alamat:</label><textarea id="edit-patient-address" rows="3" required></textarea>
                 <label for="edit-patient-allergies">Riwayat Alergi:</label><textarea id="edit-patient-allergies" rows="3"></textarea>
-                
                 <label for="edit-patient-initial-assessment">Asesmen Awal:</label>
                 <textarea id="edit-patient-initial-assessment" rows="4"></textarea>
                 <label for="edit-patient-assessing-nurse">Nama Perawat (Asesmen):</label>
                 <input type="text" id="edit-patient-assessing-nurse">
-
                 <button type="submit" class="btn btn-success">Simpan Perubahan</button>
             </form>
         </div>
     </div>
-
-    <!-- Edit Drug Therapy Modal -->
     <div id="edit-drug-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="close-drug-modal-btn">&times;</span>
@@ -398,6 +493,17 @@
             detail: document.getElementById('patient-detail-section'),
             visits: document.getElementById('visit-history-section')
         };
+        const mainSections = {
+            patients: document.getElementById('main-patients-section'),
+            nurses: document.getElementById('main-nurses-section'),
+            admin: document.getElementById('main-admin-section')
+        };
+        const navButtons = {
+            patients: document.getElementById('nav-patients'),
+            nurses: document.getElementById('nav-nurses'),
+            admin: document.getElementById('nav-admin')
+        };
+
         const patientList = document.getElementById('patient-list');
         const addPatientForm = document.getElementById('add-patient-form');
         const patientInfoDisplay = document.getElementById('patient-info-display');
@@ -415,24 +521,53 @@
         const addPatientCard = document.getElementById('add-patient-card');
         const cancelAddPatientBtn = document.getElementById('cancel-add-patient-btn');
 
+        const nurseListView = document.getElementById('nurse-list-view');
+        const nurseDetailView = document.getElementById('nurse-detail-view');
+        const nurseList = document.getElementById('nurse-list');
+        const addNurseForm = document.getElementById('add-nurse-form');
+        const showAddNurseBtn = document.getElementById('show-add-nurse-btn');
+        const addNurseCard = document.getElementById('add-nurse-card');
+        const cancelAddNurseBtn = document.getElementById('cancel-add-nurse-btn');
+        const nurseInfoDisplay = document.getElementById('nurse-info-display');
+        const searchNurseInput = document.getElementById('search-nurse');
+        const backToNursesBtn = document.getElementById('back-to-nurses-btn');
+
+
         let currentPatientId = null;
         let currentPatientName = '';
         let allPatients = [];
+        let allNurses = [];
         let totalPatientsChartInstance;
         let genderChartInstance;
 
         // --- Navigation Logic ---
-        const showSection = (sectionName) => {
+        const handleNavigation = (targetSection) => {
+            Object.values(mainSections).forEach(section => section.style.display = 'none');
+            mainSections[targetSection].style.display = 'block';
+
+            Object.values(navButtons).forEach(btn => btn.classList.remove('active'));
+            navButtons[targetSection].classList.add('active');
+
+            if (targetSection !== 'patients') {
+                 showSubSection('management');
+            }
+        };
+
+        navButtons.patients.addEventListener('click', () => handleNavigation('patients'));
+        navButtons.nurses.addEventListener('click', () => handleNavigation('nurses'));
+        navButtons.admin.addEventListener('click', () => handleNavigation('admin'));
+
+        const showSubSection = (sectionName) => {
             Object.values(sections).forEach(section => section.style.display = 'none');
             sections[sectionName].style.display = 'block';
         };
 
-        document.getElementById('back-to-patients-from-detail').addEventListener('click', () => showSection('management'));
+        document.getElementById('back-to-patients-from-detail').addEventListener('click', () => showSubSection('management'));
         document.getElementById('view-visits-btn').addEventListener('click', () => {
             document.getElementById('visit-patient-name').textContent = currentPatientName;
-            showSection('visits');
+            showSubSection('visits');
         });
-        document.getElementById('back-to-detail-btn').addEventListener('click', () => showSection('detail'));
+        document.getElementById('back-to-detail-btn').addEventListener('click', () => showSubSection('detail'));
 
         // --- Generate Medical Record Number ---
         const generateMedicalRecordNumber = () => {
@@ -551,7 +686,7 @@
                 await displayPatientDetails(patientId);
                 displayDrugTherapies(patientId);
                 displayMedicalRecords(patientId);
-                showSection('detail');
+                showSubSection('detail');
             }
 
             if (target.classList.contains('btn-danger')) {
@@ -573,7 +708,7 @@
                 }
                 await deleteDoc(doc(db, "patients", patientId));
                 alert('Pasien dan semua datanya telah berhasil dihapus.');
-                showSection('management');
+                showSubSection('management');
             } catch (error) {
                 console.error("Error deleting patient: ", error);
                 alert('Gagal menghapus pasien.');
@@ -872,7 +1007,6 @@
         };
 
         // --- Dashboard Charts ---
-        // FIX: Added a plugin to display text in the center of the doughnut chart.
         const doughnutText = {
             id: 'doughnutText',
             afterDraw(chart, args, options) {
@@ -900,7 +1034,6 @@
                 genderChartInstance.destroy();
             }
 
-            // 1. Total Patients Chart (Doughnut)
             const totalCtx = document.getElementById('total-patients-chart').getContext('2d');
             totalPatientsChartInstance = new Chart(totalCtx, {
                 type: 'doughnut',
@@ -922,11 +1055,9 @@
                     },
                     cutout: '70%'
                 },
-                // FIX: Register the custom plugin to display the number.
                 plugins: [doughnutText]
             });
 
-            // 2. Gender Chart (Pie)
             const genderCounts = { 'Laki-laki': 0, 'Perempuan': 0, 'Lainnya': 0 };
             patientsData.forEach(patient => {
                 if (patient.gender === 'Laki-laki') {
@@ -961,11 +1092,113 @@
             });
         };
 
+        // --- NEW: Nurse Data Management ---
+        showAddNurseBtn.addEventListener('click', () => {
+            addNurseCard.style.display = 'block';
+            showAddNurseBtn.style.display = 'none';
+        });
+
+        cancelAddNurseBtn.addEventListener('click', () => {
+            addNurseCard.style.display = 'none';
+            showAddNurseBtn.style.display = 'block';
+            addNurseForm.reset();
+        });
+
+        addNurseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await addDoc(collection(db, "nurses"), {
+                    name: document.getElementById('nurse-name').value,
+                    dob: document.getElementById('nurse-dob').value,
+                    nurseId: document.getElementById('nurse-id').value,
+                    regNumber: document.getElementById('nurse-reg-number').value,
+                    visitArea: document.getElementById('nurse-visit-area').value,
+                    createdAt: serverTimestamp()
+                });
+                alert('Data perawat berhasil ditambahkan!');
+                addNurseForm.reset();
+                addNurseCard.style.display = 'none';
+                showAddNurseBtn.style.display = 'block';
+            } catch (error) {
+                console.error("Error adding nurse: ", error);
+                alert('Gagal menambahkan data perawat.');
+            }
+        });
+
+        const renderNurseList = () => {
+            nurseList.innerHTML = '';
+            const searchTerm = searchNurseInput.value.toLowerCase();
+            const filteredNurses = allNurses.filter(nurseDoc => {
+                const nurse = nurseDoc.data();
+                return nurse.name && nurse.name.toLowerCase().includes(searchTerm);
+            });
+
+            if (filteredNurses.length === 0) {
+                nurseList.innerHTML = '<li>Belum ada data perawat.</li>';
+                return;
+            }
+
+            filteredNurses.forEach((doc) => {
+                const nurse = doc.data();
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="list-item-info">
+                        <strong>${nurse.name}</strong><br>
+                        <small>ID: ${nurse.nurseId}</small>
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn btn-primary view-nurse-detail-btn" data-id="${doc.id}">Detail</button>
+                    </div>`;
+                nurseList.appendChild(li);
+            });
+        };
+
+        searchNurseInput.addEventListener('input', renderNurseList);
+
+        const listenForNurses = () => {
+            const q = query(collection(db, "nurses"), orderBy("name"));
+            onSnapshot(q, (snapshot) => {
+                allNurses = snapshot.docs;
+                renderNurseList();
+            });
+        };
+
+        const displayNurseDetails = async (nurseId) => {
+            const docRef = doc(db, "nurses", nurseId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const nurse = docSnap.data();
+                document.getElementById('nurse-detail-name').textContent = `Detail Perawat: ${nurse.name}`;
+                nurseInfoDisplay.innerHTML = `
+                    <p><strong>Nama:</strong> ${nurse.name}</p>
+                    <p><strong>Tanggal Lahir:</strong> ${nurse.dob}</p>
+                    <p><strong>ID Perawat:</strong> ${nurse.nurseId}</p>
+                    <p><strong>Nomor Registrasi:</strong> ${nurse.regNumber}</p>
+                    <p><strong>Wilayah Kunjungan:</strong><br>${(nurse.visitArea || '-').replace(/\n/g, '<br>')}</p>
+                `;
+                nurseListView.style.display = 'none';
+                nurseDetailView.style.display = 'block';
+            }
+        };
+
+        nurseList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('view-nurse-detail-btn')) {
+                const nurseId = e.target.dataset.id;
+                displayNurseDetails(nurseId);
+            }
+        });
+        
+        backToNursesBtn.addEventListener('click', () => {
+            nurseListView.style.display = 'block';
+            nurseDetailView.style.display = 'none';
+        });
+
 
         // --- Initial Load ---
         setInitialMedicalRecordNumber();
         listenForPatients();
-        showSection('management');
+        listenForNurses(); // Listen for nurse data
+        handleNavigation('patients'); // Set initial view
     </script>
 </body>
 </html>
