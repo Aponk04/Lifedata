@@ -102,15 +102,16 @@
         .nav-links {
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
         }
         .nav-btn {
             background-color: transparent;
             color: white;
             border: 2px solid transparent;
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             transition: background-color 0.3s, border-color 0.3s;
         }
@@ -134,7 +135,7 @@
         }
 
         /* Mobile & Tablet Styles */
-        @media (max-width: 768px) {
+        @media (max-width: 850px) {
             .nav-links {
                 position: fixed;
                 top: 0;
@@ -256,7 +257,7 @@
             list-style: none; 
             padding: 0; 
         }
-        #patient-list li, #drug-therapy-list li, #nurse-list li, #admin-list li { 
+        #patient-list li, #drug-therapy-list li, #nurse-list li, #admin-list li, #services-list li, #price-list li { 
             background-color: #f8f9fa; 
             border: 1px solid #dee2e6; 
             padding: 15px; 
@@ -267,8 +268,13 @@
             align-items: center; 
             transition: background-color 0.3s, border-left 0.3s; 
         }
-        #patient-list li:hover, #drug-therapy-list li:not(.therapy-stopped):hover, #nurse-list li:hover { 
+        #patient-list li:hover, #drug-therapy-list li:not(.therapy-stopped):hover, #nurse-list li:hover, #services-list li:hover { 
             background-color: #e9ecef; 
+        }
+        #services-list li {
+            font-weight: 500;
+            border-left: 5px solid #17a2b8;
+            cursor: pointer;
         }
         .list-item-info { 
             flex-grow: 1; 
@@ -333,8 +339,9 @@
         hr { border: 0; height: 1px; background-color: #e0e0e0; margin: 30px 0; }
         
         /* Modal Styling */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 25px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 10px; position: relative; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 25px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 10px; position: relative; color: #000; }
+        .modal-content h2, .modal-content h3, .modal-content label { color: #000; }
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; top: 10px; right: 20px; }
         .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
         
@@ -386,6 +393,7 @@
                 <div id="nav-links-container" class="nav-links">
                     <button id="nav-patients" class="nav-btn active">DATA PASIEN</button>
                     <button id="nav-nurses" class="nav-btn">DATA PERAWAT</button>
+                    <button id="nav-services" class="nav-btn">JENIS LAYANAN</button>
                     <button id="nav-admin" class="nav-btn">ADMINISTRASI</button>
                 </div>
             </div>
@@ -506,7 +514,7 @@
                 </div>
             </main>
 
-            <!-- NEW: Section for Nurse Data -->
+            <!-- Section for Nurse Data -->
             <main id="main-nurses-section" style="display: none;">
                 <h1>Data Perawat</h1>
                 <div id="nurse-list-view">
@@ -551,7 +559,23 @@
                 </div>
             </main>
 
-            <!-- NEW: Section for Administration -->
+            <!-- Section for Services -->
+            <main id="main-services-section" style="display: none;">
+                <h1>Jenis Layanan</h1>
+                <div class="card">
+                    <ul id="services-list">
+                        <li data-service-id="Layanan Jasa Perawat Lansia">LAYANAN JASA PERAWAT LANSIA</li>
+                        <li data-service-id="Layanan Jasa Perawat Alat Medis">LAYANAN JASA PERAWAT PADA PASIEN DENGAN PEMASANGAN DAN PERAWATAN ALAT MEDIS</li>
+                        <li data-service-id="Layanan Jasa Perawatan Luka">LAYANAN JASA PERAWATAN LUKA DI RUMAH</li>
+                        <li data-service-id="Layanan Jasa Manajemen Stres">LAYANAN JASA MANAJEMEN STRES OLEH PERAWAT AHLI</li>
+                        <li data-service-id="Layanan Jasa Khitan">LAYANAN JASA KHITAN OLEH PERAWAT AHLI</li>
+                        <li data-service-id="Layanan Jasa Infus Vitamin">LAYANAN JASA INFUS VITAMIN IMMUNE BOOSTER</li>
+                        <li data-service-id="Jasa Layanan Hemodialisis">JASA LAYANAN HEMODIALISIS DI RUMAH ANDA</li>
+                    </ul>
+                </div>
+            </main>
+
+            <!-- Section for Administration -->
             <main id="main-admin-section" style="display: none;">
                 <h1>Administrasi</h1>
                 <div class="card">
@@ -569,7 +593,7 @@
         <!-- Modals -->
         <div id="edit-patient-modal" class="modal">
             <div class="modal-content">
-                <span class="close-btn" id="close-modal-btn">&times;</span>
+                <span class="close-btn" id="close-patient-modal-btn">&times;</span>
                 <h2>Edit Data Pasien</h2>
                 <form id="edit-patient-form">
                     <label for="edit-patient-rm">No. Rekam Medik:</label><input type="text" id="edit-patient-rm" readonly>
@@ -622,6 +646,28 @@
                 </form>
             </div>
         </div>
+        <!-- NEW MODAL FOR SERVICE PRICES -->
+        <div id="service-price-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" id="close-price-modal-btn">&times;</span>
+                <h2 id="price-modal-title">Daftar Harga</h2>
+                <div class="card">
+                    <h3>Daftar Harga Saat Ini</h3>
+                    <ul id="price-list"><li>Memuat harga...</li></ul>
+                </div>
+                <div class="card">
+                    <h3 id="add-edit-price-title">Tambah Harga Baru</h3>
+                    <form id="price-form">
+                        <input type="hidden" id="price-id">
+                        <label for="price-description">Deskripsi Harga (e.g., Paket Harian, Per Tindakan):</label>
+                        <input type="text" id="price-description" required>
+                        <label for="price-amount">Jumlah Harga (Rp):</label>
+                        <input type="number" id="price-amount" required>
+                        <button type="submit" class="btn btn-success">Simpan Harga</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -654,12 +700,14 @@
         const mainSections = {
             patients: document.getElementById('main-patients-section'),
             nurses: document.getElementById('main-nurses-section'),
+            services: document.getElementById('main-services-section'),
             admin: document.getElementById('main-admin-section')
         };
         const navLinksContainer = document.getElementById('nav-links-container');
         const navButtons = {
             patients: document.getElementById('nav-patients'),
             nurses: document.getElementById('nav-nurses'),
+            services: document.getElementById('nav-services'),
             admin: document.getElementById('nav-admin')
         };
         const hamburgerBtn = document.getElementById('hamburger-btn');
@@ -676,7 +724,6 @@
         const searchPatientInput = document.getElementById('search-patient');
         const editDrugModal = document.getElementById('edit-drug-modal');
         const editDrugTherapyForm = document.getElementById('edit-drug-therapy-form');
-        const closeDrugModalBtn = document.getElementById('close-drug-modal-btn');
         const showAddPatientBtn = document.getElementById('show-add-patient-btn');
         const addPatientCard = document.getElementById('add-patient-card');
         const cancelAddPatientBtn = document.getElementById('cancel-add-patient-btn');
@@ -694,12 +741,19 @@
         const backToNursesBtn = document.getElementById('back-to-nurses-btn');
         const editNurseModal = document.getElementById('edit-nurse-modal');
         const editNurseForm = document.getElementById('edit-nurse-form');
-        const closeNurseModalBtn = document.getElementById('close-nurse-modal-btn');
 
+        // Service Price Modal Elements
+        const servicesList = document.getElementById('services-list');
+        const servicePriceModal = document.getElementById('service-price-modal');
+        const priceModalTitle = document.getElementById('price-modal-title');
+        const priceList = document.getElementById('price-list');
+        const priceForm = document.getElementById('price-form');
+        const addEditPriceTitle = document.getElementById('add-edit-price-title');
 
         let currentPatientId = null;
         let currentPatientName = '';
         let currentNurseId = null; 
+        let currentServiceId = null;
         let allPatients = [];
         let allNurses = [];
         let totalPatientsChartInstance;
@@ -714,7 +768,6 @@
             if (usernameInput === 'Lifecare' && passwordInput === '22222') {
                 loginSection.style.display = 'none';
                 appWrapper.style.display = 'block';
-                // Initialize the app after successful login
                 initializeAppFunctions();
             } else {
                 loginError.style.display = 'block';
@@ -725,57 +778,40 @@
         const initializeAppFunctions = () => {
             setInitialMedicalRecordNumber();
             listenForPatients();
-            listenForNurses(); // Listen for nurse data
-            handleNavigation('patients'); // Set initial view
+            listenForNurses();
+            handleNavigation('patients');
         };
 
         // --- Authentication ---
         const authenticateAdmin = (action) => {
-            if (!confirm(`Apakah anda memiliki ijin untuk ${action} data ini?`)) {
-                return false;
-            }
+            if (!confirm(`Apakah anda memiliki ijin untuk ${action} data ini?`)) return false;
             const username = prompt("Masukkan username:");
-            if (username !== "Aponk") {
-                alert("Username salah.");
-                return false;
-            }
+            if (username !== "Aponk") { alert("Username salah."); return false; }
             const password = prompt("Masukkan password:");
-            if (password !== "2025") {
-                alert("Password salah.");
-                return false;
-            }
+            if (password !== "2025") { alert("Password salah."); return false; }
             return true;
         };
 
         // --- Navigation Logic ---
-        hamburgerBtn.addEventListener('click', () => {
-            navLinksContainer.classList.toggle('is-open');
-        });
+        hamburgerBtn.addEventListener('click', () => navLinksContainer.classList.toggle('is-open'));
 
         const handleNavigation = (targetSection) => {
             Object.values(mainSections).forEach(section => section.style.display = 'none');
             mainSections[targetSection].style.display = 'block';
-
             Object.values(navButtons).forEach(btn => btn.classList.remove('active'));
             navButtons[targetSection].classList.add('active');
-
-            if (targetSection === 'patients') {
-                 showSubSection('management');
-            }
-            if (navLinksContainer.classList.contains('is-open')) {
-                navLinksContainer.classList.remove('is-open');
-            }
+            if (targetSection === 'patients') showSubSection('management');
+            if (navLinksContainer.classList.contains('is-open')) navLinksContainer.classList.remove('is-open');
         };
 
         navButtons.patients.addEventListener('click', () => handleNavigation('patients'));
         navButtons.nurses.addEventListener('click', () => handleNavigation('nurses'));
+        navButtons.services.addEventListener('click', () => handleNavigation('services'));
         navButtons.admin.addEventListener('click', () => handleNavigation('admin'));
 
         const showSubSection = (sectionName) => {
             Object.values(sections).forEach(section => section.style.display = 'none');
-            if(sections[sectionName]) {
-                sections[sectionName].style.display = 'block';
-            }
+            if(sections[sectionName]) sections[sectionName].style.display = 'block';
         };
 
         document.getElementById('back-to-patients-from-detail').addEventListener('click', () => showSubSection('management'));
@@ -869,22 +905,12 @@
         searchPatientInput.addEventListener('input', renderPatientList);
 
         const listenForPatients = () => {
-            const q = query(collection(db, "patients"));
+            const q = query(collection(db, "patients"), orderBy("name"));
             onSnapshot(q, (snapshot) => {
-                let docs = snapshot.docs;
-                docs.sort((a, b) => {
-                    const nameA = a.data().name.toLowerCase();
-                    const nameB = b.data().name.toLowerCase();
-                    if (nameA < nameB) return -1;
-                    if (nameA > nameB) return 1;
-                    return 0;
-                });
-                allPatients = docs;
+                allPatients = snapshot.docs;
                 renderPatientList();
                 updateDashboardCharts(allPatients.map(doc => doc.data()));
-            }, (error) => {
-                console.error("Error listening for patient documents: ", error);
-            });
+            }, (error) => console.error("Error listening for patient documents: ", error));
         };
 
         patientList.addEventListener('click', async (e) => {
@@ -941,8 +967,6 @@
                         <p><strong>Asesmen Awal:</strong><br>${(patient.initial_assessment || 'Tidak ada data').replace(/\n/g, '<br>')}</p>
                         <p><strong>Diasesmen oleh:</strong> ${patient.assessing_nurse || 'Tidak ada data'}</p>
                     `;
-                } else {
-                    console.log("No such document!");
                 }
             } catch (error) {
                 console.error("Error getting patient details: ", error);
@@ -998,62 +1022,37 @@
             }
         });
 
-        document.getElementById('close-modal-btn').addEventListener('click', () => editPatientModal.style.display = 'none');
+        document.getElementById('close-patient-modal-btn').addEventListener('click', () => editPatientModal.style.display = 'none');
         
         // --- Drug Therapy ---
         addDrugTherapyForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!currentPatientId) return;
+            e.preventDefault(); if (!currentPatientId) return;
             try {
                 await addDoc(collection(db, "drugTherapies"), {
-                    patientId: currentPatientId,
-                    name: document.getElementById('drug-name').value,
-                    dosage: document.getElementById('drug-dosage').value,
-                    frequency: document.getElementById('drug-frequency').value,
-                    route: document.getElementById('drug-route').value,
-                    status: 'active',
-                    createdAt: serverTimestamp()
+                    patientId: currentPatientId, name: document.getElementById('drug-name').value,
+                    dosage: document.getElementById('drug-dosage').value, frequency: document.getElementById('drug-frequency').value,
+                    route: document.getElementById('drug-route').value, status: 'active', createdAt: serverTimestamp()
                 });
                 addDrugTherapyForm.reset();
-            } catch (error) {
-                console.error("Error adding drug therapy: ", error);
-            }
+            } catch (error) { console.error("Error adding drug therapy: ", error); }
         });
 
         const displayDrugTherapies = (patientId) => {
             const q = query(collection(db, "drugTherapies"), where("patientId", "==", patientId));
             onSnapshot(q, (snapshot) => {
                 drugTherapyList.innerHTML = '';
-                if (snapshot.empty) { 
-                    drugTherapyList.innerHTML = '<li>Belum ada terapi.</li>'; 
-                    return; 
-                }
-                
+                if (snapshot.empty) { drugTherapyList.innerHTML = '<li>Belum ada terapi.</li>'; return; }
                 const therapies = snapshot.docs.sort((a, b) => {
-                    const statusA = a.data().status === 'stopped' ? 1 : 0;
-                    const statusB = b.data().status === 'stopped' ? 1 : 0;
-                    if (statusA !== statusB) {
-                        return statusA - statusB;
-                    }
-                    const timeA = a.data().createdAt?.toDate() || 0;
-                    const timeB = b.data().createdAt?.toDate() || 0;
+                    const statusA = a.data().status === 'stopped' ? 1 : 0, statusB = b.data().status === 'stopped' ? 1 : 0;
+                    if (statusA !== statusB) return statusA - statusB;
+                    const timeA = a.data().createdAt?.toDate() || 0, timeB = b.data().createdAt?.toDate() || 0;
                     return timeB - timeA;
                 });
-
                 therapies.forEach((doc) => {
-                    const therapy = doc.data();
-                    const li = document.createElement('li');
-                    
-                    if (therapy.status === 'stopped') {
-                        li.classList.add('therapy-stopped');
-                    }
-
+                    const therapy = doc.data(); const li = document.createElement('li');
+                    if (therapy.status === 'stopped') li.classList.add('therapy-stopped');
                     li.innerHTML = `
-                        <div class="list-item-info">
-                            <strong>${therapy.name}</strong> (${therapy.dosage || 'N/A'})
-                            <br>
-                            <small>${therapy.frequency || 'N/A'}, via ${therapy.route || 'N/A'}</small>
-                        </div>
+                        <div class="list-item-info"><strong>${therapy.name}</strong> (${therapy.dosage || 'N/A'})<br><small>${therapy.frequency || 'N/A'}, via ${therapy.route || 'N/A'}</small></div>
                         <div class="list-item-actions">
                             <button class="btn btn-primary edit-therapy-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;" ${therapy.status === 'stopped' ? 'disabled' : ''}>Edit</button>
                             <button class="btn btn-warning stop-therapy-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;" ${therapy.status === 'stopped' ? 'disabled' : ''}>Hentikan</button>
@@ -1061,20 +1060,14 @@
                         </div>`;
                     drugTherapyList.appendChild(li);
                 });
-            }, (error) => {
-                console.error("Error in drugTherapies snapshot listener: ", error);
-            });
+            }, (error) => console.error("Error in drugTherapies snapshot listener: ", error));
         };
 
         drugTherapyList.addEventListener('click', async (e) => {
-            const target = e.target;
-            const therapyId = target.dataset.id;
-            if (!therapyId) return;
-
+            const target = e.target; const therapyId = target.dataset.id; if (!therapyId) return;
             if (target.classList.contains('edit-therapy-btn')) {
                 if (confirm('Apakah anda yakin mengedit obat ini?')) {
-                    const docRef = doc(db, "drugTherapies", therapyId);
-                    const docSnap = await getDoc(docRef);
+                    const docRef = doc(db, "drugTherapies", therapyId); const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         const therapy = docSnap.data();
                         document.getElementById('edit-drug-id').value = therapyId;
@@ -1086,129 +1079,74 @@
                     }
                 }
             }
-
             if (target.classList.contains('stop-therapy-btn')) {
                 if (confirm('Apakah anda yakin menghentikan pemberian obat ini??')) {
-                    const therapyRef = doc(db, "drugTherapies", therapyId);
-                    await updateDoc(therapyRef, {
-                        status: 'stopped'
-                    });
+                    await updateDoc(doc(db, "drugTherapies", therapyId), { status: 'stopped' });
                 }
             }
-
             if (target.classList.contains('delete-therapy-btn')) {
                 if (confirm('Apakah anda yakin menghapus obat ini dari daftar?')) {
-                    try {
-                        await deleteDoc(doc(db, "drugTherapies", therapyId));
-                        alert('Obat berhasil dihapus.');
-                    } catch (error) {
-                        console.error("Error deleting drug therapy: ", error);
-                        alert('Gagal menghapus obat.');
-                    }
+                    try { await deleteDoc(doc(db, "drugTherapies", therapyId)); alert('Obat berhasil dihapus.'); } 
+                    catch (error) { console.error("Error deleting drug therapy: ", error); alert('Gagal menghapus obat.'); }
                 }
             }
         });
 
         editDrugTherapyForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const therapyId = document.getElementById('edit-drug-id').value;
-            const therapyRef = doc(db, "drugTherapies", therapyId);
-            
+            e.preventDefault(); const therapyId = document.getElementById('edit-drug-id').value;
             try {
-                await updateDoc(therapyRef, {
-                    name: document.getElementById('edit-drug-name').value,
-                    dosage: document.getElementById('edit-drug-dosage').value,
-                    frequency: document.getElementById('edit-drug-frequency').value,
-                    route: document.getElementById('edit-drug-route').value
+                await updateDoc(doc(db, "drugTherapies", therapyId), {
+                    name: document.getElementById('edit-drug-name').value, dosage: document.getElementById('edit-drug-dosage').value,
+                    frequency: document.getElementById('edit-drug-frequency').value, route: document.getElementById('edit-drug-route').value
                 });
-                alert('Terapi obat berhasil diperbarui!');
-                editDrugModal.style.display = 'none';
-            } catch (error) {
-                console.error("Error updating drug therapy: ", error);
-                alert('Gagal memperbarui terapi obat.');
-            }
+                alert('Terapi obat berhasil diperbarui!'); editDrugModal.style.display = 'none';
+            } catch (error) { console.error("Error updating drug therapy: ", error); alert('Gagal memperbarui terapi obat.'); }
         });
 
-        closeDrugModalBtn.addEventListener('click', () => {
-            editDrugModal.style.display = 'none';
-        });
-
-        window.addEventListener('click', (e) => {
-            if (e.target == editPatientModal || e.target == editDrugModal || e.target == editNurseModal) {
-                editPatientModal.style.display = 'none';
-                editDrugModal.style.display = 'none';
-                editNurseModal.style.display = 'none';
-            }
-        });
-
-
+        document.getElementById('close-drug-modal-btn').addEventListener('click', () => editDrugModal.style.display = 'none');
+        
         // --- Medical Records (Visits) with Photo Upload ---
         addMedicalRecordForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!currentPatientId) return;
-
-            const visitDate = document.getElementById('visit-date').value;
-            const visitTime = document.getElementById('visit-time').value;
-            const photoFile = document.getElementById('visit-photo').files[0];
-            
-            let photoURL = '';
+            e.preventDefault(); if (!currentPatientId) return;
+            const visitDate = document.getElementById('visit-date').value, visitTime = document.getElementById('visit-time').value;
+            const photoFile = document.getElementById('visit-photo').files[0]; let photoURL = '';
             if (photoFile) {
-                if (photoFile.size > 1048576) {
-                    alert('Ukuran foto terlalu besar! Maksimal 1MB.');
-                    return;
-                }
+                if (photoFile.size > 1048576) { alert('Ukuran foto terlalu besar! Maksimal 1MB.'); return; }
                 photoURL = await toBase64(photoFile);
             }
-
             const recordData = {
-                patientId: currentPatientId,
-                timestamp: new Date(`${visitDate}T${visitTime}`),
+                patientId: currentPatientId, timestamp: new Date(`${visitDate}T${visitTime}`),
                 ttv: { blood_pressure: document.getElementById('blood-pressure').value, temperature: document.getElementById('temperature').value, pulse: document.getElementById('pulse').value, respiration: document.getElementById('respiration').value },
                 soap: { s: document.getElementById('soap-s').value, o: document.getElementById('soap-o').value, a: document.getElementById('soap-a').value, p: document.getElementById('soap-p').value },
-                medication_notes: document.getElementById('medication-notes').value,
-                visiting_nurse_name: document.getElementById('visiting-nurse-name').value,
-                photoURL: photoURL,
-                createdAt: serverTimestamp()
+                medication_notes: document.getElementById('medication-notes').value, visiting_nurse_name: document.getElementById('visiting-nurse-name').value,
+                photoURL: photoURL, createdAt: serverTimestamp()
             };
-
             try {
                 await addDoc(collection(db, "medicalRecords"), recordData);
-                alert('Catatan kunjungan berhasil disimpan!');
-                addMedicalRecordForm.reset();
+                alert('Catatan kunjungan berhasil disimpan!'); addMedicalRecordForm.reset();
                 document.getElementById('visit-date').valueAsDate = new Date();
                 document.getElementById('visit-time').value = new Date().toTimeString().slice(0, 5);
-            } catch (err) {
-                console.error("Error adding record: ", err);
-                alert('Gagal menyimpan catatan.');
-            }
+            } catch (err) { console.error("Error adding record: ", err); alert('Gagal menyimpan catatan.'); }
         });
 
         const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
+            const reader = new FileReader(); reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error);
         });
 
         const displayMedicalRecords = (patientId) => {
+            // FIX: Remove orderBy from the query and sort manually
             const q = query(collection(db, "medicalRecords"), where("patientId", "==", patientId));
             onSnapshot(q, (snapshot) => {
                 medicalRecordList.innerHTML = '';
-                if (snapshot.empty) { 
-                    medicalRecordList.innerHTML = '<li>Belum ada riwayat kunjungan.</li>'; 
-                    return; 
-                }
+                if (snapshot.empty) { medicalRecordList.innerHTML = '<li>Belum ada riwayat kunjungan.</li>'; return; }
+                
+                // Sort manually after fetching
+                const records = snapshot.docs.map(doc => doc.data());
+                records.sort((a, b) => (b.timestamp.toDate() || 0) - (a.timestamp.toDate() || 0));
 
-                const records = snapshot.docs.sort((a, b) => {
-                    const timeA = a.data().timestamp.toDate();
-                    const timeB = b.data().timestamp.toDate();
-                    return timeB - timeA;
-                });
-
-                records.forEach((doc) => {
-                    const record = doc.data();
-                    const visitDate = record.timestamp.toDate();
-                    const li = document.createElement('li');
+                records.forEach((record) => {
+                    const visitDate = record.timestamp.toDate(); const li = document.createElement('li');
                     li.innerHTML = `
                         <div class="record-header">Kunjungan: ${visitDate.toLocaleDateString('id-ID', { dateStyle: 'full' })} - ${visitDate.toLocaleTimeString('id-ID', { timeStyle: 'short' })}</div>
                         <div class="record-body">
@@ -1220,224 +1158,97 @@
                         </div>`;
                     medicalRecordList.appendChild(li);
                 });
-            }, (error) => {
-                console.error("Error in medicalRecords snapshot listener: ", error);
-            });
+            }, (error) => console.error("Error in medicalRecords snapshot listener: ", error));
         };
 
         // --- Dashboard Charts ---
         const doughnutText = {
             id: 'doughnutText',
             afterDraw(chart, args, options) {
-                const { ctx, data } = chart;
-                const text = data.datasets[0].data[0];
-                if (text === undefined) return;
-
-                ctx.save();
-                const x = chart.getDatasetMeta(0).data[0].x;
-                const y = chart.getDatasetMeta(0).data[0].y;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.font = 'bold 30px sans-serif';
-                ctx.fillStyle = '#007bff';
-                ctx.fillText(text, x, y);
-                ctx.restore();
+                const { ctx, data } = chart; const text = data.datasets[0].data[0]; if (text === undefined) return;
+                ctx.save(); const x = chart.getDatasetMeta(0).data[0].x, y = chart.getDatasetMeta(0).data[0].y;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold 30px sans-serif';
+                ctx.fillStyle = '#007bff'; ctx.fillText(text, x, y); ctx.restore();
             }
         };
 
         const updateDashboardCharts = (patientsData) => {
-            if (totalPatientsChartInstance) {
-                totalPatientsChartInstance.destroy();
-            }
-            if (genderChartInstance) {
-                genderChartInstance.destroy();
-            }
-
+            if (totalPatientsChartInstance) totalPatientsChartInstance.destroy();
+            if (genderChartInstance) genderChartInstance.destroy();
             const totalCtx = document.getElementById('total-patients-chart').getContext('2d');
             totalPatientsChartInstance = new Chart(totalCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Total Pasien'],
-                    datasets: [{
-                        data: [patientsData.length],
-                        backgroundColor: ['#007bff'],
-                        hoverBackgroundColor: ['#0056b3'],
-                        borderColor: ['#ffffff'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: false }
-                    },
-                    cutout: '70%'
-                },
-                plugins: [doughnutText]
+                type: 'doughnut', data: { labels: ['Total Pasien'], datasets: [{ data: [patientsData.length], backgroundColor: ['#007bff'], hoverBackgroundColor: ['#0056b3'], borderColor: ['#ffffff'], borderWidth: 2 }] },
+                options: { responsive: true, plugins: { legend: { display: false }, tooltip: { enabled: false } }, cutout: '70%' }, plugins: [doughnutText]
             });
-
             const genderCounts = { 'Laki-laki': 0, 'Perempuan': 0, 'Lainnya': 0 };
             patientsData.forEach(patient => {
-                if (patient.gender === 'Laki-laki') {
-                    genderCounts['Laki-laki']++;
-                } else if (patient.gender === 'Perempuan') {
-                    genderCounts['Perempuan']++;
-                } else {
-                    genderCounts['Lainnya']++;
-                }
+                if (patient.gender === 'Laki-laki') genderCounts['Laki-laki']++;
+                else if (patient.gender === 'Perempuan') genderCounts['Perempuan']++;
+                else genderCounts['Lainnya']++;
             });
-
             const genderCtx = document.getElementById('gender-chart').getContext('2d');
             genderChartInstance = new Chart(genderCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Laki-laki', 'Perempuan', 'Belum Diisi'],
-                    datasets: [{
-                        data: [genderCounts['Laki-laki'], genderCounts['Perempuan'], genderCounts['Lainnya']],
-                        backgroundColor: ['#007bff', '#e83e8c', '#6c757d'],
-                        borderColor: ['#ffffff', '#ffffff', '#ffffff'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                    }
-                }
+                type: 'pie', data: { labels: ['Laki-laki', 'Perempuan', 'Belum Diisi'], datasets: [{ data: [genderCounts['Laki-laki'], genderCounts['Perempuan'], genderCounts['Lainnya']], backgroundColor: ['#007bff', '#e83e8c', '#6c757d'], borderColor: ['#ffffff', '#ffffff', '#ffffff'], borderWidth: 2 }] },
+                options: { responsive: true, plugins: { legend: { position: 'top' } } }
             });
         };
 
-        // --- NEW: Nurse Data Management ---
-        showAddNurseBtn.addEventListener('click', () => {
-            addNurseCard.style.display = 'block';
-            showAddNurseBtn.style.display = 'none';
-        });
-
-        cancelAddNurseBtn.addEventListener('click', () => {
-            addNurseCard.style.display = 'none';
-            showAddNurseBtn.style.display = 'block';
-            addNurseForm.reset();
-        });
-
+        // --- Nurse Data Management ---
+        showAddNurseBtn.addEventListener('click', () => { addNurseCard.style.display = 'block'; showAddNurseBtn.style.display = 'none'; });
+        cancelAddNurseBtn.addEventListener('click', () => { addNurseCard.style.display = 'none'; showAddNurseBtn.style.display = 'block'; addNurseForm.reset(); });
         addNurseForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const photoFile = document.getElementById('nurse-photo').files[0];
-            let photoURL = '';
+            e.preventDefault(); const photoFile = document.getElementById('nurse-photo').files[0]; let photoURL = '';
             if (photoFile) {
-                if (photoFile.size > 1048576) { // 1MB check
-                    alert('Ukuran foto terlalu besar! Maksimal 1MB.');
-                    return;
-                }
+                if (photoFile.size > 1048576) { alert('Ukuran foto terlalu besar! Maksimal 1MB.'); return; }
                 photoURL = await toBase64(photoFile);
             }
-
             try {
                 await addDoc(collection(db, "nurses"), {
-                    name: document.getElementById('nurse-name').value,
-                    dob: document.getElementById('nurse-dob').value,
-                    nurseId: document.getElementById('nurse-id').value,
-                    regNumber: document.getElementById('nurse-reg-number').value,
-                    visitArea: document.getElementById('nurse-visit-area').value,
-                    photoURL: photoURL,
-                    createdAt: serverTimestamp()
+                    name: document.getElementById('nurse-name').value, dob: document.getElementById('nurse-dob').value,
+                    nurseId: document.getElementById('nurse-id').value, regNumber: document.getElementById('nurse-reg-number').value,
+                    visitArea: document.getElementById('nurse-visit-area').value, photoURL: photoURL, createdAt: serverTimestamp()
                 });
-                alert('Data perawat berhasil ditambahkan!');
-                addNurseForm.reset();
-                addNurseCard.style.display = 'none';
-                showAddNurseBtn.style.display = 'block';
-            } catch (error) {
-                console.error("Error adding nurse: ", error);
-                alert('Gagal menambahkan data perawat.');
-            }
+                alert('Data perawat berhasil ditambahkan!'); addNurseForm.reset(); addNurseCard.style.display = 'none'; showAddNurseBtn.style.display = 'block';
+            } catch (error) { console.error("Error adding nurse: ", error); alert('Gagal menambahkan data perawat.'); }
         });
 
         const renderNurseList = () => {
-            nurseList.innerHTML = '';
-            const searchTerm = searchNurseInput.value.toLowerCase();
-            const filteredNurses = allNurses.filter(nurseDoc => {
-                const nurse = nurseDoc.data();
-                return nurse.name && nurse.name.toLowerCase().includes(searchTerm);
-            });
-
-            if (filteredNurses.length === 0) {
-                nurseList.innerHTML = '<li>Belum ada data perawat.</li>';
-                return;
-            }
-
+            nurseList.innerHTML = ''; const searchTerm = searchNurseInput.value.toLowerCase();
+            const filteredNurses = allNurses.filter(nurseDoc => nurseDoc.data().name?.toLowerCase().includes(searchTerm));
+            if (filteredNurses.length === 0) { nurseList.innerHTML = '<li>Belum ada data perawat.</li>'; return; }
             filteredNurses.forEach((doc) => {
-                const nurse = doc.data();
-                const li = document.createElement('li');
+                const nurse = doc.data(); const li = document.createElement('li');
                 li.innerHTML = `
-                    <div class="list-item-info">
-                        <strong>${nurse.name}</strong><br>
-                        <small>ID: ${nurse.nurseId}</small>
-                    </div>
-                    <div class="list-item-actions">
-                        <button class="btn btn-primary view-nurse-detail-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;">Detail</button>
-                    </div>`;
+                    <div class="list-item-info"><strong>${nurse.name}</strong><br><small>ID: ${nurse.nurseId}</small></div>
+                    <div class="list-item-actions"><button class="btn btn-primary view-nurse-detail-btn" data-id="${doc.id}" style="padding: 4px 8px; font-size: 12px;">Detail</button></div>`;
                 nurseList.appendChild(li);
             });
         };
-
         searchNurseInput.addEventListener('input', renderNurseList);
-
         const listenForNurses = () => {
             const q = query(collection(db, "nurses"), orderBy("name"));
-            onSnapshot(q, (snapshot) => {
-                allNurses = snapshot.docs;
-                renderNurseList();
-            });
+            onSnapshot(q, (snapshot) => { allNurses = snapshot.docs; renderNurseList(); });
         };
-
         const displayNurseDetails = async (nurseId) => {
-            const docRef = doc(db, "nurses", nurseId);
-            const docSnap = await getDoc(docRef);
+            const docRef = doc(db, "nurses", nurseId); const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 const nurse = docSnap.data();
                 document.getElementById('nurse-detail-name').textContent = `Detail Perawat: ${nurse.name}`;
-                
-                const infoContainer = document.getElementById('nurse-info-display');
-                infoContainer.innerHTML = `
-                    <p><strong>Nama:</strong> ${nurse.name}</p>
-                    <p><strong>Tanggal Lahir:</strong> ${nurse.dob}</p>
-                    <p><strong>ID Perawat:</strong> ${nurse.nurseId}</p>
-                    <p><strong>Nomor Registrasi:</strong> ${nurse.regNumber}</p>
-                    <p><strong>Wilayah Kunjungan:</strong><br>${(nurse.visitArea || '-').replace(/\n/g, '<br>')}</p>
-                `;
-
-                const photoContainer = document.getElementById('nurse-photo-container');
+                document.getElementById('nurse-info-display').innerHTML = `<p><strong>Nama:</strong> ${nurse.name}</p><p><strong>Tanggal Lahir:</strong> ${nurse.dob}</p><p><strong>ID Perawat:</strong> ${nurse.nurseId}</p><p><strong>Nomor Registrasi:</strong> ${nurse.regNumber}</p><p><strong>Wilayah Kunjungan:</strong><br>${(nurse.visitArea || '-').replace(/\n/g, '<br>')}</p>`;
                 const photoEl = document.getElementById('nurse-detail-photo');
-                if (nurse.photoURL) {
-                    photoEl.src = nurse.photoURL;
-                    photoContainer.style.display = 'block';
-                } else {
-                    photoContainer.style.display = 'none';
-                }
-
-                nurseListView.style.display = 'none';
-                nurseDetailView.style.display = 'block';
+                if (nurse.photoURL) { photoEl.src = nurse.photoURL; photoEl.parentElement.style.display = 'block'; } 
+                else { photoEl.parentElement.style.display = 'none'; }
+                nurseListView.style.display = 'none'; nurseDetailView.style.display = 'block';
             }
         };
-
         nurseList.addEventListener('click', (e) => {
-            if (e.target.classList.contains('view-nurse-detail-btn')) {
-                currentNurseId = e.target.dataset.id; // Set current nurse ID
-                displayNurseDetails(currentNurseId);
-            }
+            if (e.target.classList.contains('view-nurse-detail-btn')) { currentNurseId = e.target.dataset.id; displayNurseDetails(currentNurseId); }
         });
-
         document.getElementById('nurse-detail-view').addEventListener('click', async (e) => {
-            const target = e.target;
-            if (!currentNurseId) return;
-
+            const target = e.target; if (!currentNurseId) return;
             if (target.id === 'edit-nurse-detail-btn') {
                  if (authenticateAdmin('mengedit')) {
-                    const docRef = doc(db, "nurses", currentNurseId);
-                    const docSnap = await getDoc(docRef);
+                    const docRef = doc(db, "nurses", currentNurseId); const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         const nurse = docSnap.data();
                         document.getElementById('edit-nurse-id').value = currentNurseId;
@@ -1450,68 +1261,145 @@
                     }
                 }
             }
-
             if (target.id === 'delete-nurse-detail-btn') {
                 if (authenticateAdmin('menghapus')) {
                     try {
                         await deleteDoc(doc(db, "nurses", currentNurseId));
-                        alert('Data perawat berhasil dihapus.');
-                        backToNursesBtn.click(); // Return to list view
+                        alert('Data perawat berhasil dihapus.'); backToNursesBtn.click();
+                    } catch (error) { console.error("Error deleting nurse: ", error); alert('Gagal menghapus data perawat.'); }
+                }
+            }
+        });
+        editNurseForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); const nurseId = document.getElementById('edit-nurse-id').value;
+            const photoFile = document.getElementById('edit-nurse-photo').files[0]; let photoURL;
+            if (photoFile) {
+                 if (photoFile.size > 1048576) { alert('Ukuran foto terlalu besar! Maksimal 1MB.'); return; }
+                photoURL = await toBase64(photoFile);
+            }
+            const dataToUpdate = {
+                name: document.getElementById('edit-nurse-name').value, dob: document.getElementById('edit-nurse-dob').value,
+                nurseId: document.getElementById('edit-nurse-id-field').value, regNumber: document.getElementById('edit-nurse-reg-number').value,
+                visitArea: document.getElementById('edit-nurse-visit-area').value,
+            };
+            if (photoURL) dataToUpdate.photoURL = photoURL;
+            try {
+                await updateDoc(doc(db, "nurses", nurseId), dataToUpdate);
+                alert('Data perawat berhasil diperbarui!'); editNurseModal.style.display = 'none'; displayNurseDetails(nurseId);
+            } catch (error) { console.error("Error updating nurse data: ", error); alert('Gagal memperbarui data perawat.'); }
+        });
+        document.getElementById('close-nurse-modal-btn').addEventListener('click', () => editNurseModal.style.display = 'none');
+        backToNursesBtn.addEventListener('click', () => { nurseListView.style.display = 'block'; nurseDetailView.style.display = 'none'; currentNurseId = null; });
+
+        // --- Service Price Management ---
+        servicesList.addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI') {
+                currentServiceId = e.target.dataset.serviceId;
+                priceModalTitle.textContent = `Daftar Harga: ${e.target.textContent}`;
+                priceForm.reset();
+                document.getElementById('price-id').value = '';
+                addEditPriceTitle.textContent = 'Tambah Harga Baru';
+                displayPrices(currentServiceId);
+                servicePriceModal.style.display = 'block';
+            }
+        });
+
+        const displayPrices = (serviceId) => {
+            // FIX: Remove orderBy from the query to prevent index error
+            const q = query(collection(db, "servicePrices"), where("serviceId", "==", serviceId));
+            onSnapshot(q, (snapshot) => {
+                priceList.innerHTML = '';
+                if (snapshot.empty) {
+                    priceList.innerHTML = '<li>Belum ada daftar harga untuk layanan ini.</li>';
+                    return;
+                }
+                
+                // Sort the documents manually on the client-side
+                const prices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                prices.sort((a, b) => (a.createdAt?.toDate() || 0) - (b.createdAt?.toDate() || 0));
+
+                prices.forEach(price => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="list-item-info">
+                            <strong>${price.description}</strong><br>
+                            <small>Rp ${new Intl.NumberFormat('id-ID').format(price.amount)}</small>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="btn btn-warning edit-price-btn" data-id="${price.id}" style="padding: 4px 8px; font-size: 12px;">Edit</button>
+                            <button class="btn btn-danger delete-price-btn" data-id="${price.id}" style="padding: 4px 8px; font-size: 12px;">Hapus</button>
+                        </div>
+                    `;
+                    priceList.appendChild(li);
+                });
+            });
+        };
+
+        priceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const priceId = document.getElementById('price-id').value;
+            const priceData = {
+                serviceId: currentServiceId,
+                description: document.getElementById('price-description').value,
+                amount: Number(document.getElementById('price-amount').value),
+            };
+
+            try {
+                if (priceId) { // Update existing price
+                    await updateDoc(doc(db, "servicePrices", priceId), priceData);
+                    alert('Harga berhasil diperbarui!');
+                } else { // Add new price
+                    priceData.createdAt = serverTimestamp();
+                    await addDoc(collection(db, "servicePrices"), priceData);
+                    alert('Harga berhasil ditambahkan!');
+                }
+                priceForm.reset();
+                document.getElementById('price-id').value = '';
+                addEditPriceTitle.textContent = 'Tambah Harga Baru';
+            } catch (error) {
+                console.error("Error saving price: ", error);
+                alert('Gagal menyimpan harga.');
+            }
+        });
+
+        priceList.addEventListener('click', async (e) => {
+            const target = e.target;
+            const priceId = target.dataset.id;
+            if (!priceId) return;
+
+            if (target.classList.contains('delete-price-btn')) {
+                if (confirm('Yakin ingin menghapus harga ini?')) {
+                    try {
+                        await deleteDoc(doc(db, "servicePrices", priceId));
+                        alert('Harga berhasil dihapus.');
                     } catch (error) {
-                        console.error("Error deleting nurse: ", error);
-                        alert('Gagal menghapus data perawat.');
+                        console.error("Error deleting price: ", error);
+                        alert('Gagal menghapus harga.');
                     }
                 }
             }
-        });
-        
-        editNurseForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const nurseId = document.getElementById('edit-nurse-id').value;
-            const nurseRef = doc(db, "nurses", nurseId);
 
-            const photoFile = document.getElementById('edit-nurse-photo').files[0];
-            let photoURL;
-
-            if (photoFile) {
-                 if (photoFile.size > 1048576) {
-                    alert('Ukuran foto terlalu besar! Maksimal 1MB.');
-                    return;
+            if (target.classList.contains('edit-price-btn')) {
+                const docRef = doc(db, "servicePrices", priceId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const price = docSnap.data();
+                    document.getElementById('price-id').value = priceId;
+                    document.getElementById('price-description').value = price.description;
+                    document.getElementById('price-amount').value = price.amount;
+                    addEditPriceTitle.textContent = 'Edit Harga';
                 }
-                photoURL = await toBase64(photoFile);
-            }
-
-            const dataToUpdate = {
-                name: document.getElementById('edit-nurse-name').value,
-                dob: document.getElementById('edit-nurse-dob').value,
-                nurseId: document.getElementById('edit-nurse-id-field').value,
-                regNumber: document.getElementById('edit-nurse-reg-number').value,
-                visitArea: document.getElementById('edit-nurse-visit-area').value,
-            };
-
-            if (photoURL) {
-                dataToUpdate.photoURL = photoURL;
-            }
-
-            try {
-                await updateDoc(nurseRef, dataToUpdate);
-                alert('Data perawat berhasil diperbarui!');
-                editNurseModal.style.display = 'none';
-                displayNurseDetails(nurseId); // Refresh details
-            } catch (error) {
-                console.error("Error updating nurse data: ", error);
-                alert('Gagal memperbarui data perawat.');
             }
         });
 
-        closeNurseModalBtn.addEventListener('click', () => {
-            editNurseModal.style.display = 'none';
-        });
-        
-        backToNursesBtn.addEventListener('click', () => {
-            nurseListView.style.display = 'block';
-            nurseDetailView.style.display = 'none';
-            currentNurseId = null; // Clear selected nurse
+        document.getElementById('close-price-modal-btn').addEventListener('click', () => servicePriceModal.style.display = 'none');
+        window.addEventListener('click', (e) => {
+            if (e.target == servicePriceModal || e.target == editPatientModal || e.target == editDrugModal || e.target == editNurseModal) {
+                 servicePriceModal.style.display = 'none';
+                 editPatientModal.style.display = 'none';
+                 editDrugModal.style.display = 'none';
+                 editNurseModal.style.display = 'none';
+            }
         });
 
     </script>
