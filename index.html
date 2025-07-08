@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekam Medis Home Care (Fitur Lengkap)</title>
+    <title>Rekam Medis Life Care</title>
+    <link rel="icon" href="https://github.com/Aponk04/logilivecare/blob/main/logolifecare1.gif?raw=true" type="image/gif">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* General Body and Container Styling */
@@ -428,7 +429,7 @@
             <!-- SECTION 1: Patient Data (Main Section) -->
             <main id="main-patients-section">
                 <div id="patient-management-section">
-                    <h1>Rekam Medis Perawat Home Care</h1>
+                    <h1>Rekam Medis Pasien Life Care</h1>
                     <div id="charts-container" class="card">
                         <div class="chart-wrapper">
                             <h4>Total Pasien</h4>
@@ -888,6 +889,7 @@
                         resolve(false);
                     }
                     adminPasswordForm.removeEventListener('submit', formSubmitHandler);
+                    closeAdminPasswordModalBtn.removeEventListener('click', closeHandler);
                 };
 
                 const closeHandler = () => {
