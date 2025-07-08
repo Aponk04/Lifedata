@@ -230,6 +230,31 @@
             gap: 20px; 
         }
 
+        /* NEW: Styles for Autocomplete/Suggestions */
+        .autocomplete-wrapper {
+            position: relative;
+        }
+        .suggestions-popup {
+            display: none;
+            position: absolute;
+            border: 1px solid #ddd;
+            background-color: white;
+            width: calc(100% - 2px); /* Match input width */
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 1002;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+
+
         /* Buttons */
         .btn { 
             color: white; 
@@ -432,8 +457,13 @@
                             <label for="patient-allergies">Riwayat Alergi:</label><textarea id="patient-allergies" rows="3" placeholder="Contoh: Paracetamol, Udang, Debu"></textarea>
                             <label for="patient-initial-assessment">Asesmen Awal:</label>
                             <textarea id="patient-initial-assessment" rows="4" placeholder="Masukkan hasil asesmen awal"></textarea>
-                            <label for="patient-assessing-nurse">Nama Perawat (Asesmen):</label>
-                            <input type="text" id="patient-assessing-nurse" placeholder="Nama perawat yang melakukan asesmen">
+                            
+                            <div class="autocomplete-wrapper">
+                                <label for="patient-assessing-nurse">Nama Perawat (Asesmen):</label>
+                                <input type="text" id="patient-assessing-nurse" placeholder="Ketik nama perawat yang melakukan asesmen" autocomplete="off">
+                                <div id="assessing-nurse-suggestions" class="suggestions-popup"></div>
+                            </div>
+
                             <div style="display: flex; gap: 10px; margin-top: 10px;">
                                 <button type="submit" class="btn btn-success" style="margin-top: 0;">Simpan Pasien</button>
                                 <button type="button" id="cancel-add-patient-btn" class="btn btn-secondary" style="margin-top: 0;">Batal</button>
@@ -460,18 +490,13 @@
                         </div>
                         <div id="patient-info-display" class="patient-info-display"></div>
                     </div>
+                    <!-- MODIFIED: Drug Therapy Section -->
                     <div class="card">
-                        <h3>Daftar Terapi Obat</h3>
-                        <form id="add-drug-therapy-form">
-                            <div class="form-grid">
-                                <div><label for="drug-name">Nama Obat:</label><input type="text" id="drug-name" required></div>
-                                <div><label for="drug-dosage">Dosis:</label><input type="text" id="drug-dosage" placeholder="Contoh: 500 mg"></div>
-                                <div><label for="drug-frequency">Frekuensi:</label><input type="text" id="drug-frequency" placeholder="Contoh: 3x sehari"></div>
-                                <div><label for="drug-route">Rute Pemberian:</label><input type="text" id="drug-route" placeholder="Contoh: Oral"></div>
-                            </div>
-                            <button type="submit" class="btn btn-success">Tambah Terapi</button>
-                        </form>
-                        <h4 style="margin-top: 30px; text-align: left; padding-left: 5px;">Terapi Aktif:</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                             <h3 style="text-align: left; margin: 0;">Daftar Terapi Obat</h3>
+                             <button id="show-add-drug-therapy-btn" class="btn btn-success" style="width: auto; padding: 8px 15px; margin-top:0;">Tambah Terapi</button>
+                        </div>
+                        <h4 style="margin-top: 10px; text-align: left; padding-left: 5px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Terapi Aktif:</h4>
                         <ul id="drug-therapy-list"></ul>
                     </div>
                     <button id="view-visits-btn" class="btn btn-primary">Lihat & Tambah Riwayat Kunjungan</button>
@@ -501,8 +526,13 @@
                             <hr>
                             <label><strong>Foto Dokumentasi (Max 1MB):</strong></label><input type="file" id="visit-photo" accept="image/*">
                             <label>Catatan Pemberian Obat Saat Kunjungan:</label><textarea id="medication-notes" rows="3"></textarea>
-                            <label for="visiting-nurse-name">Nama Perawat:</label>
-                            <input type="text" id="visiting-nurse-name" placeholder="Masukkan nama perawat yang berkunjung">
+                            
+                            <div class="autocomplete-wrapper">
+                                <label for="visiting-nurse-name">Nama Perawat:</label>
+                                <input type="text" id="visiting-nurse-name" placeholder="Ketik nama perawat yang berkunjung" autocomplete="off">
+                                <div id="visiting-nurse-suggestions" class="suggestions-popup"></div>
+                            </div>
+
                             <button type="submit" class="btn btn-success">Simpan Kunjungan</button>
                         </form>
                     </div>
@@ -609,9 +639,29 @@
                     <label for="edit-patient-allergies">Riwayat Alergi:</label><textarea id="edit-patient-allergies" rows="3"></textarea>
                     <label for="edit-patient-initial-assessment">Asesmen Awal:</label>
                     <textarea id="edit-patient-initial-assessment" rows="4"></textarea>
-                    <label for="edit-patient-assessing-nurse">Nama Perawat (Asesmen):</label>
-                    <input type="text" id="edit-patient-assessing-nurse">
+                    
+                    <div class="autocomplete-wrapper">
+                        <label for="edit-patient-assessing-nurse">Nama Perawat (Asesmen):</label>
+                        <input type="text" id="edit-patient-assessing-nurse" autocomplete="off">
+                        <div id="edit-assessing-nurse-suggestions" class="suggestions-popup"></div>
+                    </div>
                     <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+                </form>
+            </div>
+        </div>
+        <!-- NEW/MODIFIED: Add Drug Therapy Modal -->
+        <div id="add-drug-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" id="close-add-drug-modal-btn">&times;</span>
+                <h2>Tambah Terapi Obat Baru</h2>
+                <form id="add-drug-therapy-form">
+                    <div class="form-grid">
+                        <div><label for="drug-name">Nama Obat:</label><input type="text" id="drug-name" required></div>
+                        <div><label for="drug-dosage">Dosis:</label><input type="text" id="drug-dosage" placeholder="Contoh: 500 mg"></div>
+                        <div><label for="drug-frequency">Frekuensi:</label><input type="text" id="drug-frequency" placeholder="Contoh: 3x sehari"></div>
+                        <div><label for="drug-route">Rute Pemberian:</label><input type="text" id="drug-route" placeholder="Contoh: Oral"></div>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="margin-top: 10px;">Simpan Terapi</button>
                 </form>
             </div>
         </div>
@@ -646,7 +696,6 @@
                 </form>
             </div>
         </div>
-        <!-- NEW MODAL FOR SERVICE PRICES -->
         <div id="service-price-modal" class="modal">
             <div class="modal-content">
                 <span class="close-btn" id="close-price-modal-btn">&times;</span>
@@ -722,8 +771,14 @@
         const editPatientModal = document.getElementById('edit-patient-modal');
         const editPatientForm = document.getElementById('edit-patient-form');
         const searchPatientInput = document.getElementById('search-patient');
+        
+        // MODIFIED: Drug therapy modal elements
+        const addDrugModal = document.getElementById('add-drug-modal');
         const editDrugModal = document.getElementById('edit-drug-modal');
+        const showAddDrugTherapyBtn = document.getElementById('show-add-drug-therapy-btn');
+        const closeAddDrugModalBtn = document.getElementById('close-add-drug-modal-btn');
         const editDrugTherapyForm = document.getElementById('edit-drug-therapy-form');
+
         const showAddPatientBtn = document.getElementById('show-add-patient-btn');
         const addPatientCard = document.getElementById('add-patient-card');
         const cancelAddPatientBtn = document.getElementById('cancel-add-patient-btn');
@@ -741,6 +796,15 @@
         const backToNursesBtn = document.getElementById('back-to-nurses-btn');
         const editNurseModal = document.getElementById('edit-nurse-modal');
         const editNurseForm = document.getElementById('edit-nurse-form');
+
+        // Nurse Autocomplete Elements
+        const assessingNurseInput = document.getElementById('patient-assessing-nurse');
+        const assessingNurseSuggestions = document.getElementById('assessing-nurse-suggestions');
+        const visitingNurseInput = document.getElementById('visiting-nurse-name');
+        const visitingNurseSuggestions = document.getElementById('visiting-nurse-suggestions');
+        const editAssessingNurseInput = document.getElementById('edit-patient-assessing-nurse');
+        const editAssessingNurseSuggestions = document.getElementById('edit-assessing-nurse-suggestions');
+
 
         // Service Price Modal Elements
         const servicesList = document.getElementById('services-list');
@@ -858,7 +922,7 @@
                     address: document.getElementById('patient-address').value,
                     allergies: document.getElementById('patient-allergies').value,
                     initial_assessment: document.getElementById('patient-initial-assessment').value,
-                    assessing_nurse: document.getElementById('patient-assessing-nurse').value,
+                    assessing_nurse: assessingNurseInput.value,
                     createdAt: serverTimestamp()
                 });
                 alert('Pasien berhasil ditambahkan!');
@@ -986,7 +1050,7 @@
                     document.getElementById('edit-patient-address').value = patient.address;
                     document.getElementById('edit-patient-allergies').value = patient.allergies || ''; 
                     document.getElementById('edit-patient-initial-assessment').value = patient.initial_assessment || '';
-                    document.getElementById('edit-patient-assessing-nurse').value = patient.assessing_nurse || '';
+                    editAssessingNurseInput.value = patient.assessing_nurse || '';
                     editPatientModal.style.display = 'block';
                 }
             }
@@ -1011,7 +1075,7 @@
                     address: document.getElementById('edit-patient-address').value,
                     allergies: document.getElementById('edit-patient-allergies').value,
                     initial_assessment: document.getElementById('edit-patient-initial-assessment').value,
-                    assessing_nurse: document.getElementById('edit-patient-assessing-nurse').value
+                    assessing_nurse: editAssessingNurseInput.value
                 });
                 alert('Data pasien berhasil diperbarui!');
                 editPatientModal.style.display = 'none';
@@ -1025,16 +1089,32 @@
         document.getElementById('close-patient-modal-btn').addEventListener('click', () => editPatientModal.style.display = 'none');
         
         // --- Drug Therapy ---
+        showAddDrugTherapyBtn.addEventListener('click', () => {
+            addDrugModal.style.display = 'block';
+        });
+        closeAddDrugModalBtn.addEventListener('click', () => {
+            addDrugModal.style.display = 'none';
+        });
+
         addDrugTherapyForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); if (!currentPatientId) return;
+            e.preventDefault(); 
+            if (!currentPatientId) return;
             try {
                 await addDoc(collection(db, "drugTherapies"), {
-                    patientId: currentPatientId, name: document.getElementById('drug-name').value,
-                    dosage: document.getElementById('drug-dosage').value, frequency: document.getElementById('drug-frequency').value,
-                    route: document.getElementById('drug-route').value, status: 'active', createdAt: serverTimestamp()
+                    patientId: currentPatientId, 
+                    name: document.getElementById('drug-name').value,
+                    dosage: document.getElementById('drug-dosage').value, 
+                    frequency: document.getElementById('drug-frequency').value,
+                    route: document.getElementById('drug-route').value, 
+                    status: 'active', 
+                    createdAt: serverTimestamp()
                 });
                 addDrugTherapyForm.reset();
-            } catch (error) { console.error("Error adding drug therapy: ", error); }
+                addDrugModal.style.display = 'none';
+            } catch (error) { 
+                console.error("Error adding drug therapy: ", error); 
+                alert('Gagal menambahkan terapi obat.');
+            }
         });
 
         const displayDrugTherapies = (patientId) => {
@@ -1118,7 +1198,8 @@
                 patientId: currentPatientId, timestamp: new Date(`${visitDate}T${visitTime}`),
                 ttv: { blood_pressure: document.getElementById('blood-pressure').value, temperature: document.getElementById('temperature').value, pulse: document.getElementById('pulse').value, respiration: document.getElementById('respiration').value },
                 soap: { s: document.getElementById('soap-s').value, o: document.getElementById('soap-o').value, a: document.getElementById('soap-a').value, p: document.getElementById('soap-p').value },
-                medication_notes: document.getElementById('medication-notes').value, visiting_nurse_name: document.getElementById('visiting-nurse-name').value,
+                medication_notes: document.getElementById('medication-notes').value, 
+                visiting_nurse_name: visitingNurseInput.value,
                 photoURL: photoURL, createdAt: serverTimestamp()
             };
             try {
@@ -1135,13 +1216,11 @@
         });
 
         const displayMedicalRecords = (patientId) => {
-            // FIX: Remove orderBy from the query and sort manually
             const q = query(collection(db, "medicalRecords"), where("patientId", "==", patientId));
             onSnapshot(q, (snapshot) => {
                 medicalRecordList.innerHTML = '';
                 if (snapshot.empty) { medicalRecordList.innerHTML = '<li>Belum ada riwayat kunjungan.</li>'; return; }
                 
-                // Sort manually after fetching
                 const records = snapshot.docs.map(doc => doc.data());
                 records.sort((a, b) => (b.timestamp.toDate() || 0) - (a.timestamp.toDate() || 0));
 
@@ -1291,6 +1370,51 @@
         document.getElementById('close-nurse-modal-btn').addEventListener('click', () => editNurseModal.style.display = 'none');
         backToNursesBtn.addEventListener('click', () => { nurseListView.style.display = 'block'; nurseDetailView.style.display = 'none'; currentNurseId = null; });
 
+        // --- Nurse Autocomplete Logic ---
+        const setupNurseAutocomplete = (inputElement, suggestionsElement) => {
+            inputElement.addEventListener('input', () => {
+                const searchTerm = inputElement.value.toLowerCase();
+                if (!searchTerm) {
+                    suggestionsElement.style.display = 'none';
+                    return;
+                }
+
+                const filteredNurses = allNurses.filter(doc => {
+                    const nurse = doc.data();
+                    return nurse.name.toLowerCase().includes(searchTerm);
+                });
+
+                suggestionsElement.innerHTML = '';
+                if (filteredNurses.length > 0) {
+                    filteredNurses.forEach(doc => {
+                        const nurse = doc.data();
+                        const item = document.createElement('div');
+                        item.classList.add('suggestion-item');
+                        item.textContent = nurse.name;
+                        item.addEventListener('click', () => {
+                            inputElement.value = nurse.name;
+                            suggestionsElement.style.display = 'none';
+                        });
+                        suggestionsElement.appendChild(item);
+                    });
+                    suggestionsElement.style.display = 'block';
+                } else {
+                    suggestionsElement.style.display = 'none';
+                }
+            });
+
+            inputElement.addEventListener('blur', () => {
+                setTimeout(() => {
+                    suggestionsElement.style.display = 'none';
+                }, 200);
+            });
+        };
+
+        setupNurseAutocomplete(assessingNurseInput, assessingNurseSuggestions);
+        setupNurseAutocomplete(visitingNurseInput, visitingNurseSuggestions);
+        setupNurseAutocomplete(editAssessingNurseInput, editAssessingNurseSuggestions);
+
+
         // --- Service Price Management ---
         servicesList.addEventListener('click', (e) => {
             if (e.target.tagName === 'LI') {
@@ -1305,7 +1429,6 @@
         });
 
         const displayPrices = (serviceId) => {
-            // FIX: Remove orderBy from the query to prevent index error
             const q = query(collection(db, "servicePrices"), where("serviceId", "==", serviceId));
             onSnapshot(q, (snapshot) => {
                 priceList.innerHTML = '';
@@ -1314,7 +1437,6 @@
                     return;
                 }
                 
-                // Sort the documents manually on the client-side
                 const prices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 prices.sort((a, b) => (a.createdAt?.toDate() || 0) - (b.createdAt?.toDate() || 0));
 
@@ -1345,10 +1467,10 @@
             };
 
             try {
-                if (priceId) { // Update existing price
+                if (priceId) {
                     await updateDoc(doc(db, "servicePrices", priceId), priceData);
                     alert('Harga berhasil diperbarui!');
-                } else { // Add new price
+                } else {
                     priceData.createdAt = serverTimestamp();
                     await addDoc(collection(db, "servicePrices"), priceData);
                     alert('Harga berhasil ditambahkan!');
@@ -1393,12 +1515,15 @@
         });
 
         document.getElementById('close-price-modal-btn').addEventListener('click', () => servicePriceModal.style.display = 'none');
+        
+        // MODIFIED: Window click listener to close all modals
         window.addEventListener('click', (e) => {
-            if (e.target == servicePriceModal || e.target == editPatientModal || e.target == editDrugModal || e.target == editNurseModal) {
+            if (e.target == servicePriceModal || e.target == editPatientModal || e.target == editDrugModal || e.target == editNurseModal || e.target == addDrugModal) {
                  servicePriceModal.style.display = 'none';
                  editPatientModal.style.display = 'none';
                  editDrugModal.style.display = 'none';
                  editNurseModal.style.display = 'none';
+                 addDrugModal.style.display = 'none';
             }
         });
 
