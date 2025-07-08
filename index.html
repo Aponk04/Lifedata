@@ -490,7 +490,6 @@
                         </div>
                         <div id="patient-info-display" class="patient-info-display"></div>
                     </div>
-                    <!-- MODIFIED: Drug Therapy Section -->
                     <div class="card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                              <h3 style="text-align: left; margin: 0;">Daftar Terapi Obat</h3>
@@ -649,7 +648,6 @@
                 </form>
             </div>
         </div>
-        <!-- NEW/MODIFIED: Add Drug Therapy Modal -->
         <div id="add-drug-modal" class="modal">
             <div class="modal-content">
                 <span class="close-btn" id="close-add-drug-modal-btn">&times;</span>
@@ -717,6 +715,21 @@
                 </div>
             </div>
         </div>
+        <!-- NEW: Admin Password Modal -->
+        <div id="admin-password-modal" class="modal">
+            <div class="modal-content" style="max-width: 400px;">
+                <span class="close-btn" id="close-admin-password-modal-btn">&times;</span>
+                <h2>Otentikasi Admin</h2>
+                <form id="admin-password-form">
+                    <label for="admin-username">Username:</label>
+                    <input type="text" id="admin-username" required>
+                    <label for="admin-password">Password:</label>
+                    <input type="password" id="admin-password" required>
+                    <p id="admin-password-error" style="color: #dc3545; display: none;">Username atau password salah!</p>
+                    <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Login</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -772,7 +785,6 @@
         const editPatientForm = document.getElementById('edit-patient-form');
         const searchPatientInput = document.getElementById('search-patient');
         
-        // MODIFIED: Drug therapy modal elements
         const addDrugModal = document.getElementById('add-drug-modal');
         const editDrugModal = document.getElementById('edit-drug-modal');
         const showAddDrugTherapyBtn = document.getElementById('show-add-drug-therapy-btn');
@@ -797,7 +809,6 @@
         const editNurseModal = document.getElementById('edit-nurse-modal');
         const editNurseForm = document.getElementById('edit-nurse-form');
 
-        // Nurse Autocomplete Elements
         const assessingNurseInput = document.getElementById('patient-assessing-nurse');
         const assessingNurseSuggestions = document.getElementById('assessing-nurse-suggestions');
         const visitingNurseInput = document.getElementById('visiting-nurse-name');
@@ -805,14 +816,19 @@
         const editAssessingNurseInput = document.getElementById('edit-patient-assessing-nurse');
         const editAssessingNurseSuggestions = document.getElementById('edit-assessing-nurse-suggestions');
 
-
-        // Service Price Modal Elements
         const servicesList = document.getElementById('services-list');
         const servicePriceModal = document.getElementById('service-price-modal');
         const priceModalTitle = document.getElementById('price-modal-title');
         const priceList = document.getElementById('price-list');
         const priceForm = document.getElementById('price-form');
         const addEditPriceTitle = document.getElementById('add-edit-price-title');
+        
+        // NEW: Admin Password Modal Elements
+        const adminPasswordModal = document.getElementById('admin-password-modal');
+        const adminPasswordForm = document.getElementById('admin-password-form');
+        const adminPasswordError = document.getElementById('admin-password-error');
+        const closeAdminPasswordModalBtn = document.getElementById('close-admin-password-modal-btn');
+
 
         let currentPatientId = null;
         let currentPatientName = '';
@@ -846,15 +862,46 @@
             handleNavigation('patients');
         };
 
-        // --- Authentication ---
+        // --- MODIFIED: Authentication with custom modal ---
         const authenticateAdmin = (action) => {
-            if (!confirm(`Apakah anda memiliki ijin untuk ${action} data ini?`)) return false;
-            const username = prompt("Masukkan username:");
-            if (username !== "Aponk") { alert("Username salah."); return false; }
-            const password = prompt("Masukkan password:");
-            if (password !== "2025") { alert("Password salah."); return false; }
-            return true;
+            return new Promise((resolve) => {
+                if (!confirm(`Apakah anda memiliki ijin untuk ${action} data ini?`)) {
+                    resolve(false);
+                    return;
+                }
+
+                adminPasswordModal.style.display = 'block';
+                adminPasswordForm.reset();
+                adminPasswordError.style.display = 'none';
+                document.getElementById('admin-username').focus();
+
+                const formSubmitHandler = (e) => {
+                    e.preventDefault();
+                    const username = document.getElementById('admin-username').value;
+                    const password = document.getElementById('admin-password').value;
+
+                    if (username === "Aponk" && password === "2025") {
+                        adminPasswordModal.style.display = 'none';
+                        resolve(true);
+                    } else {
+                        adminPasswordError.style.display = 'block';
+                        resolve(false);
+                    }
+                    adminPasswordForm.removeEventListener('submit', formSubmitHandler);
+                };
+
+                const closeHandler = () => {
+                    adminPasswordModal.style.display = 'none';
+                    adminPasswordForm.removeEventListener('submit', formSubmitHandler);
+                    closeAdminPasswordModalBtn.removeEventListener('click', closeHandler);
+                    resolve(false);
+                };
+
+                adminPasswordForm.addEventListener('submit', formSubmitHandler);
+                closeAdminPasswordModalBtn.addEventListener('click', closeHandler);
+            });
         };
+
 
         // --- Navigation Logic ---
         hamburgerBtn.addEventListener('click', () => navLinksContainer.classList.toggle('is-open'));
@@ -1038,7 +1085,8 @@
         };
 
         document.getElementById('edit-patient-btn').addEventListener('click', async () => {
-            if (authenticateAdmin('mengedit')) {
+            const hasPermission = await authenticateAdmin('mengedit');
+            if (hasPermission) {
                 const docRef = doc(db, "patients", currentPatientId);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
@@ -1057,7 +1105,8 @@
         });
 
         deletePatientBtn.addEventListener('click', async () => {
-            if (authenticateAdmin('menghapus')) {
+            const hasPermission = await authenticateAdmin('menghapus');
+            if (hasPermission) {
                 if (confirm(`Yakin ingin menghapus ${currentPatientName} dan semua datanya?`)) {
                     await deletePatientAndRecords(currentPatientId);
                 }
@@ -1146,7 +1195,8 @@
         drugTherapyList.addEventListener('click', async (e) => {
             const target = e.target; const therapyId = target.dataset.id; if (!therapyId) return;
             if (target.classList.contains('edit-therapy-btn')) {
-                if (confirm('Apakah anda yakin mengedit obat ini?')) {
+                const hasPermission = await authenticateAdmin('mengedit obat');
+                if(hasPermission) {
                     const docRef = doc(db, "drugTherapies", therapyId); const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         const therapy = docSnap.data();
@@ -1160,12 +1210,14 @@
                 }
             }
             if (target.classList.contains('stop-therapy-btn')) {
-                if (confirm('Apakah anda yakin menghentikan pemberian obat ini??')) {
+                const hasPermission = await authenticateAdmin('menghentikan obat');
+                if (hasPermission && confirm('Apakah anda yakin menghentikan pemberian obat ini??')) {
                     await updateDoc(doc(db, "drugTherapies", therapyId), { status: 'stopped' });
                 }
             }
             if (target.classList.contains('delete-therapy-btn')) {
-                if (confirm('Apakah anda yakin menghapus obat ini dari daftar?')) {
+                const hasPermission = await authenticateAdmin('menghapus obat');
+                if (hasPermission && confirm('Apakah anda yakin menghapus obat ini dari daftar?')) {
                     try { await deleteDoc(doc(db, "drugTherapies", therapyId)); alert('Obat berhasil dihapus.'); } 
                     catch (error) { console.error("Error deleting drug therapy: ", error); alert('Gagal menghapus obat.'); }
                 }
@@ -1326,7 +1378,8 @@
         document.getElementById('nurse-detail-view').addEventListener('click', async (e) => {
             const target = e.target; if (!currentNurseId) return;
             if (target.id === 'edit-nurse-detail-btn') {
-                 if (authenticateAdmin('mengedit')) {
+                const hasPermission = await authenticateAdmin('mengedit');
+                 if (hasPermission) {
                     const docRef = doc(db, "nurses", currentNurseId); const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         const nurse = docSnap.data();
@@ -1341,7 +1394,8 @@
                 }
             }
             if (target.id === 'delete-nurse-detail-btn') {
-                if (authenticateAdmin('menghapus')) {
+                const hasPermission = await authenticateAdmin('menghapus');
+                if (hasPermission) {
                     try {
                         await deleteDoc(doc(db, "nurses", currentNurseId));
                         alert('Data perawat berhasil dihapus.'); backToNursesBtn.click();
@@ -1490,7 +1544,8 @@
             if (!priceId) return;
 
             if (target.classList.contains('delete-price-btn')) {
-                if (confirm('Yakin ingin menghapus harga ini?')) {
+                const hasPermission = await authenticateAdmin('menghapus harga');
+                if (hasPermission && confirm('Yakin ingin menghapus harga ini?')) {
                     try {
                         await deleteDoc(doc(db, "servicePrices", priceId));
                         alert('Harga berhasil dihapus.');
@@ -1502,28 +1557,31 @@
             }
 
             if (target.classList.contains('edit-price-btn')) {
-                const docRef = doc(db, "servicePrices", priceId);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const price = docSnap.data();
-                    document.getElementById('price-id').value = priceId;
-                    document.getElementById('price-description').value = price.description;
-                    document.getElementById('price-amount').value = price.amount;
-                    addEditPriceTitle.textContent = 'Edit Harga';
+                const hasPermission = await authenticateAdmin('mengedit harga');
+                if(hasPermission){
+                    const docRef = doc(db, "servicePrices", priceId);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const price = docSnap.data();
+                        document.getElementById('price-id').value = priceId;
+                        document.getElementById('price-description').value = price.description;
+                        document.getElementById('price-amount').value = price.amount;
+                        addEditPriceTitle.textContent = 'Edit Harga';
+                    }
                 }
             }
         });
 
         document.getElementById('close-price-modal-btn').addEventListener('click', () => servicePriceModal.style.display = 'none');
         
-        // MODIFIED: Window click listener to close all modals
         window.addEventListener('click', (e) => {
-            if (e.target == servicePriceModal || e.target == editPatientModal || e.target == editDrugModal || e.target == editNurseModal || e.target == addDrugModal) {
+            if (e.target == servicePriceModal || e.target == editPatientModal || e.target == editDrugModal || e.target == editNurseModal || e.target == addDrugModal || e.target == adminPasswordModal) {
                  servicePriceModal.style.display = 'none';
                  editPatientModal.style.display = 'none';
                  editDrugModal.style.display = 'none';
                  editNurseModal.style.display = 'none';
                  addDrugModal.style.display = 'none';
+                 adminPasswordModal.style.display = 'none';
             }
         });
 
